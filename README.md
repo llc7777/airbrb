@@ -12,7 +12,7 @@
 
 ## 0. Change Log
 
-31/08/25 - Initial draft of Airbrb spec
+28/10/25 - Due date typo was updated (wrong day, correct date)
 
 ## Compulsory setup
 
@@ -585,7 +585,7 @@ knowledge.
 
 ## 8. Submission
 
-This assignment is due _Friday 17th November, 10pm_.
+This assignment is due _Friday 21st November, 10pm_.
 
 To submit your assignment, you must you've pushed all of your code to your gitlab master branch. You can check if you've done this properly by seeing what code is on the gitlab site on your master branch.
 
