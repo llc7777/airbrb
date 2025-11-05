@@ -12,9 +12,11 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../utils/api";
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
 
   const { login } = useAuth();
@@ -24,15 +26,20 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
+    // Check if passwords match before submission
+    if (password !== confirmPassword) {
+      setError("Passwords do not match. Please try again.");
+      return;
+    }
+
     try {
-      const response = await authAPI.login(email, password);
+      const response = await authAPI.register(email, password, name);
       const { token } = response.data;
       login(token);
       navigate("/dashboard");
     } catch (err) {
       const errorMessage =
-        err.response?.data?.error ||
-        "Login failed. Please check your credentials.";
+        err.response?.data?.error || "Registration failed. Please try again.";
       setError(errorMessage);
     }
   };
@@ -49,7 +56,7 @@ const Login = () => {
       >
         <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>
           <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Login
+            Register
           </Typography>
 
           {error && (
@@ -73,31 +80,52 @@ const Login = () => {
             <TextField
               margin="normal"
               fullWidth
+              id="name"
+              label="Name"
+              name="name"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              fullWidth
               name="password"
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <TextField
+              margin="normal"
+              fullWidth
+              name="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              id="confirmPassword"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
             <Button
               type="submit"
-              fullWidth
               variant="contained"
+              fullWidth
               sx={{ mt: 3, mb: 2 }}
             >
-              Login
+              Register
             </Button>
             <Box sx={{ textAlign: "center" }}>
               <Typography variant="body2">
-                Don't have an account?{" "}
+                Already have an account?{" "}
                 <Button
                   variant="text"
-                  onClick={() => navigate("/register")}
+                  onClick={() => navigate("/login")}
                   sx={{ textTransform: "none" }}
                 >
-                  Register here
+                  Login here
                 </Button>
               </Typography>
             </Box>
@@ -108,4 +136,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
