@@ -30,6 +30,18 @@ export const authAPI = {
   login: (email, password) => {
     return api.post("/user/auth/login", { email, password });
   },
+  logout: () => {
+    return api.post("/user/auth/logout");
+  },
+};
+
+export const listingsAPI = {
+  getAllListings: () => {
+    return axios.get(`${API_URL}/listings`);
+  },
+  getListingById: (listingId) => {
+    return axios.get(`${API_URL}/listings/${listingId}`);
+  },
 };
 
 export default api;
