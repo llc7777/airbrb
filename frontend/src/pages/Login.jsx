@@ -95,7 +95,14 @@ const Login = () => {
                 <Button
                   variant="text"
                   onClick={() => navigate("/register")}
-                  sx={{ textTransform: "none" }}
+                  sx={{
+                    textTransform: "none",
+                    "&:hover": {
+                      textDecoration: "underline",
+                      backgroundColor: "transparent",
+                      boxShadow: "none",
+                    },
+                  }}
                 >
                   Register here
                 </Button>

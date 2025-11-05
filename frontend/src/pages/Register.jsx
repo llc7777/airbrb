@@ -123,7 +123,14 @@ const Register = () => {
                 <Button
                   variant="text"
                   onClick={() => navigate("/login")}
-                  sx={{ textTransform: "none" }}
+                  sx={{
+                    textTransform: "none",
+                    "&:hover": {
+                      textDecoration: "underline",
+                      backgroundColor: "transparent",
+                      boxShadow: "none",
+                    },
+                  }}
                 >
                   Login here
                 </Button>
