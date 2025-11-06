@@ -87,14 +87,6 @@ const CreateListing = () => {
     e.preventDefault();
     setError("");
 
-    // Validate required fields
-    if (!title || !price || !propertyType) {
-      setError(
-        "Please fill in all required fields (Title, Price, Property Type)"
-      );
-      return;
-    }
-
     // Calculate total beds
     const totalBeds = bedrooms.reduce((sum, bedroom) => {
       return sum + (parseInt(bedroom.beds) || 0);
@@ -121,7 +113,7 @@ const CreateListing = () => {
 
       // Use default thumbnail if not provided
       const thumbnailData =
-        thumbnail || "https://via.placeholder.com/400x300?text=No+Image";
+        thumbnail || "https://placehold.co/300x300?text=No+Image&font=roboto";
       // Create listing
       await listingsAPI.createListing(
         title,

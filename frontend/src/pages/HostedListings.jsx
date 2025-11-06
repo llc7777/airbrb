@@ -75,7 +75,7 @@ const HostedListings = () => {
     };
 
     fetchHostedListings();
-  }, [userEmail]);
+  }, []);
 
   /**
    * Calculate average rating from reviews
