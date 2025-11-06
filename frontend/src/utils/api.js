@@ -2,7 +2,14 @@ import axios from "axios";
 
 const API_URL = `http://localhost:5005`;
 
-const api = axios.create({
+const publicApi = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+const authApi = axios.create({
   baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
@@ -10,7 +17,7 @@ const api = axios.create({
 });
 
 // Request interceptor to add token
-api.interceptors.request.use(
+authApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -25,22 +32,22 @@ api.interceptors.request.use(
 
 export const authAPI = {
   register: (email, password, name) => {
-    return api.post("/user/auth/register", { email, password, name });
+    return publicApi.post("/user/auth/register", { email, password, name });
   },
   login: (email, password) => {
-    return api.post("/user/auth/login", { email, password });
+    return publicApi.post("/user/auth/login", { email, password });
   },
   logout: () => {
-    return api.post("/user/auth/logout");
+    return authApi.post("/user/auth/logout");
   },
 };
 
 export const listingsAPI = {
   getAllListings: () => {
-    return axios.get(`${API_URL}/listings`);
+    return publicApi.get("/listings");
   },
   getListingById: (listingId) => {
-    return axios.get(`${API_URL}/listings/${listingId}`);
+    return publicApi.get("/listings/${listingid}");
   },
 };
 
