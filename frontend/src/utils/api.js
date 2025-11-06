@@ -69,7 +69,7 @@ export const listingsAPI = {
     return publicApi.get("/listings");
   },
   // Get listing by ID (no auth required)
-  getListingById: (listingId) => {
+  getListingsById: (listingId) => {
     return publicApi.get(`/listings/${listingId}`);
   },
   // Delete listing by ID (auth required)
