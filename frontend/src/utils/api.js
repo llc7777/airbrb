@@ -72,6 +72,10 @@ export const listingsAPI = {
   getListingById: (listingId) => {
     return publicApi.get(`/listings/${listingId}`);
   },
+  // Delete listing by ID (auth required)
+  deleteListing: (listingId) => {
+    return authApi.delete(`/listings/${listingId}`);
+  },
 };
 
 export default authApi;
