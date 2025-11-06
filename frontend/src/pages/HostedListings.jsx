@@ -128,6 +128,144 @@ const HostedListings = () => {
     }
   };
 
+  return (
+    <Box>
+      {/* Navigation Bar */}
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            My Hosted Listings
+          </Typography>
+          <Button color="inherit" onClick={() => navigate("/listings/new")}>
+            Create Your Listing
+          </Button>
+          <Button color="inherit" onClick={() => navigate("/dashboard")}>
+            Back to Dashboard
+          </Button>
+        </Toolbar>
+      </AppBar>
 
+      {/* Main Content */}
+      <Container sx={{ mt: 4, mb: 4 }}>
+        {listings.length === 0 ? (
+          <Box sx={{ textAlign: "center", mt: 8 }}>
+            <Typography variant="h6" color="text.secondary">
+              You don't have any hosted listings yet.
+            </Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {listings.map((listing) => {
+              const averageRating = calculateAverageRating(listing.reviews);
+              const totalReviews = listing.reviews?.length || 0;
+
+              return (
+                <Grid item xs={12} sm={6} md={4} key={listing.id}>
+                  <Card
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      transition: "transform 0.2s",
+                      "&:hover": {
+                        transform: "translateY(-4px)",
+                        boxShadow: 4,
+                      },
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={listing.thumbnail}
+                      alt={listing.title}
+                      sx={{ objectFit: "cover" }}
+                    />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography variant="h6" gutterBottom>
+                        {listing.title}
+                      </Typography>
+
+                      <Stack spacing={1} sx={{ mb: 2 }}>
+                        <Chip
+                          label={listing.metadata?.propertyType || "N/A"}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                        />
+
+                        <Typography variant="body2" color="text.secondary">
+                          🛏️ {listing.metadata?.beds || 0} Beds
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
+                          🚿 {listing.metadata?.bathrooms || 0} Bathrooms
+                        </Typography>
+
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Rating
+                            value={averageRating}
+                            precision={0.5}
+                            readOnly
+                            size="small"
+                          />
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ ml: 1 }}
+                          >
+                            ({totalReviews} reviews)
+                          </Typography>
+                        </Box>
+
+                        <Typography variant="h6" color="primary">
+                          ${listing.price} / night
+                        </Typography>
+                      </Stack>
+
+                      <Stack spacing={1}>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={() => handleEditListing(listing.id)}
+                        >
+                          Edit Listing
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          fullWidth
+                          onClick={() => handleDeleteClick(listing)}
+                        >
+                          Delete
+                        </Button>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+      </Container>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>Delete Listing</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete "{listingToDelete?.title}"? This
+            action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
 
 export default HostedListings;
