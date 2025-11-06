@@ -328,6 +328,16 @@ const CreateListing = () => {
                   />
                 ))}
               </Box>
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                fullWidth
+                sx={{ mt: 3 }}
+              >
+                Create Listing
+              </Button>
             </Stack>
           </Box>
         </Paper>
