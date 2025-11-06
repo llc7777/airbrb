@@ -69,8 +69,18 @@ export const listingsAPI = {
     return publicApi.get("/listings");
   },
   // Get listing by ID (no auth required)
-  getListingsById: (listingId) => {
+  getListingById: (listingId) => {
     return publicApi.get(`/listings/${listingId}`);
+  },
+  // Create new listing (auth required)
+  createListing: (title, address, price, thumbnail, metadata) => {
+    return authApi.post("/listings/new", {
+      title,
+      address,
+      price,
+      thumbnail,
+      metadata,
+    });
   },
   // Delete listing by ID (auth required)
   deleteListing: (listingId) => {
