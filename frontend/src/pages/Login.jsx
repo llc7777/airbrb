@@ -38,8 +38,8 @@ const Login = () => {
       // Call login API
       const response = await authAPI.login(email, password);
       const { token } = response.data;
-      // Store token using auth context
-      login(token);
+      // Store token and email using auth context
+      login(token, email);
       // Navigate to dashboard on success
       navigate("/dashboard");
     } catch (err) {

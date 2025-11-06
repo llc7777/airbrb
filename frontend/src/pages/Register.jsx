@@ -46,8 +46,8 @@ const Register = () => {
       // Call register API
       const response = await authAPI.register(email, password, name);
       const { token } = response.data;
-      // Store token using auth context
-      login(token);
+      // Store token and email using auth context
+      login(token, email);
       // Navigate to dashboard on success
       navigate("/dashboard");
     } catch (err) {
