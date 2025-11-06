@@ -12,24 +12,38 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../utils/api";
 
+/**
+ * Login Component
+ * Allows users to login with email and password
+ */
 const Login = () => {
+  // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  // Get login function from auth context
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handle form submission
+   * Calls login API and stores token on success
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
+      // Call login API
       const response = await authAPI.login(email, password);
       const { token } = response.data;
+      // Store token using auth context
       login(token);
+      // Navigate to dashboard on success
       navigate("/dashboard");
     } catch (err) {
+      // Display error message on failure
       const errorMessage =
         err.response?.data?.error ||
         "Login failed. Please check your credentials.";

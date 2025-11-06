@@ -12,32 +12,46 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../utils/api";
 
+/**
+ * Register Component
+ * Allows new users to create an account with email, name, and password
+ */
 const Register = () => {
+  // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
 
+  // Get login function from auth context
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handle form submission
+   * Validates password match, calls register API, and stores token on success
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Check if passwords match before submission
+    // Validate passwords match before submission
     if (password !== confirmPassword) {
       setError("Passwords do not match. Please try again.");
       return;
     }
 
     try {
+      // Call register API
       const response = await authAPI.register(email, password, name);
       const { token } = response.data;
+      // Store token using auth context
       login(token);
+      // Navigate to dashboard on success
       navigate("/dashboard");
     } catch (err) {
+      // Display error message on failure
       const errorMessage =
         err.response?.data?.error || "Registration failed. Please try again.";
       setError(errorMessage);
