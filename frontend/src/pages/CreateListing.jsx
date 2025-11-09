@@ -12,6 +12,11 @@ import {
   IconButton,
   Grid,
   Chip,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -33,12 +38,40 @@ const CreateListing = () => {
   const [country, setCountry] = useState("");
   const [price, setPrice] = useState("");
   const [thumbnail, setThumbnail] = useState("");
+  const [thumbnailType, setThumbnailType] = useState("image"); // "image" or "youtube"
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [bathrooms, setBathrooms] = useState("");
   const [bedrooms, setBedrooms] = useState([{ beds: "", type: "" }]);
   const [amenities, setAmenities] = useState([]);
   const [newAmenity, setNewAmenity] = useState("");
   const [error, setError] = useState("");
+
+  /**
+   * Convert YouTube URL to embedded format
+   */
+  const convertToEmbedUrl = (url) => {
+    if (!url) return "";
+
+    // Already an embed URL
+    if (url.includes("youtube.com/embed/")) {
+      return url;
+    }
+
+    // Extract video ID from various YouTube URL formats
+    let videoId = "";
+
+    // Format: https://www.youtube.com/watch?v=VIDEO_ID
+    if (url.includes("youtube.com/watch?v=")) {
+      videoId = url.split("v=")[1]?.split("&")[0];
+    }
+    // Format: https://youtu.be/VIDEO_ID
+    else if (url.includes("youtu.be/")) {
+      videoId = url.split("youtu.be/")[1]?.split("?")[0];
+    }
+
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+  };
 
   /**
    * Add a new bedroom field
@@ -111,9 +144,19 @@ const CreateListing = () => {
         amenities,
       };
 
-      // Use default thumbnail if not provided
-      const thumbnailData =
-        thumbnail || "https://placehold.co/300x300?text=No+Image&font=roboto";
+      // Determine thumbnail data based on type
+      let thumbnailData;
+      if (thumbnailType === "youtube" && youtubeUrl) {
+        // Convert YouTube URL to embedded format
+        thumbnailData = convertToEmbedUrl(youtubeUrl);
+      } else if (thumbnail) {
+        thumbnailData = thumbnail;
+      } else {
+        // Default placeholder image
+        thumbnailData =
+          "https://placehold.co/300x300?text=No+Image&font=roboto";
+      }
+
       // Create listing
       await listingsAPI.createListing(
         title,
@@ -224,14 +267,45 @@ const CreateListing = () => {
               />
 
               {/* Thumbnail */}
-              <TextField
-                fullWidth
-                label="Thumbnail (Base64 or URL)"
-                value={thumbnail}
-                onChange={(e) => setThumbnail(e.target.value)}
-                placeholder="Leave empty for default image"
-                helperText="Provide a base64 encoded image or image URL"
-              />
+              <FormControl component="fieldset">
+                <FormLabel component="legend">Thumbnail Type</FormLabel>
+                <RadioGroup
+                  row
+                  value={thumbnailType}
+                  onChange={(e) => setThumbnailType(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="image"
+                    control={<Radio />}
+                    label="Image"
+                  />
+                  <FormControlLabel
+                    value="youtube"
+                    control={<Radio />}
+                    label="YouTube Video"
+                  />
+                </RadioGroup>
+              </FormControl>
+
+              {thumbnailType === "image" ? (
+                <TextField
+                  fullWidth
+                  label="Thumbnail (Base64 or URL)"
+                  value={thumbnail}
+                  onChange={(e) => setThumbnail(e.target.value)}
+                  placeholder="Leave empty for default image"
+                  helperText="Provide a base64 encoded image or image URL"
+                />
+              ) : (
+                <TextField
+                  fullWidth
+                  label="YouTube Video URL"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="e.g., https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID"
+                  helperText="Paste any YouTube video URL (will be converted to embedded format)"
+                />
+              )}
 
               {/* Property Type */}
               <TextField

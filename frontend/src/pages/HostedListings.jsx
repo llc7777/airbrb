@@ -173,13 +173,28 @@ const HostedListings = () => {
                       },
                     }}
                   >
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={listing.thumbnail}
-                      alt={listing.title}
-                      sx={{ objectFit: "cover" }}
-                    />
+                    {listing.thumbnail?.includes("youtube.com/embed/") ? (
+                      <Box sx={{ height: 200, width: "100%" }}>
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={listing.thumbnail}
+                          title={listing.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          style={{ border: 0 }}
+                        />
+                      </Box>
+                    ) : (
+                      <CardMedia
+                        component="img"
+                        height="200"
+                        image={listing.thumbnail}
+                        alt={listing.title}
+                        sx={{ objectFit: "cover" }}
+                      />
+                    )}
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Typography variant="h6" gutterBottom>
                         {listing.title}
