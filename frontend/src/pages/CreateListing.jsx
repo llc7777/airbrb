@@ -48,32 +48,6 @@ const CreateListing = () => {
   const [error, setError] = useState("");
 
   /**
-   * Convert YouTube URL to embedded format
-   */
-  const convertToEmbedUrl = (url) => {
-    if (!url) return "";
-
-    // Already an embed URL
-    if (url.includes("youtube.com/embed/")) {
-      return url;
-    }
-
-    // Extract video ID from various YouTube URL formats
-    let videoId = "";
-
-    // Format: https://www.youtube.com/watch?v=VIDEO_ID
-    if (url.includes("youtube.com/watch?v=")) {
-      videoId = url.split("v=")[1]?.split("&")[0];
-    }
-    // Format: https://youtu.be/VIDEO_ID
-    else if (url.includes("youtu.be/")) {
-      videoId = url.split("youtu.be/")[1]?.split("?")[0];
-    }
-
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
-  };
-
-  /**
    * Add a new bedroom field
    */
   const handleAddBedroom = () => {
@@ -147,8 +121,14 @@ const CreateListing = () => {
       // Determine thumbnail data based on type
       let thumbnailData;
       if (thumbnailType === "youtube" && youtubeUrl) {
-        // Convert YouTube URL to embedded format
-        thumbnailData = convertToEmbedUrl(youtubeUrl);
+        // Validate that the URL is an embedded YouTube URL
+        if (!youtubeUrl.includes("youtube.com/embed/")) {
+          setError(
+            "Please provide an embedded YouTube URL. Example: https://www.youtube.com/embed/VIDEO_ID"
+          );
+          return;
+        }
+        thumbnailData = youtubeUrl;
       } else if (thumbnail) {
         thumbnailData = thumbnail;
       } else {
@@ -299,11 +279,11 @@ const CreateListing = () => {
               ) : (
                 <TextField
                   fullWidth
-                  label="YouTube Video URL"
+                  label="YouTube Embedded URL"
                   value={youtubeUrl}
                   onChange={(e) => setYoutubeUrl(e.target.value)}
-                  placeholder="e.g., https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID"
-                  helperText="Paste any YouTube video URL (will be converted to embedded format)"
+                  placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                  helperText="Only embedded YouTube URLs are accepted (format: youtube.com/embed/VIDEO_ID)"
                 />
               )}
 
