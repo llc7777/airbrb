@@ -400,6 +400,45 @@ const EditListing = () => {
               >
                 Add Bedroom
               </Button>
+
+              {/* Amenities */}
+              <Typography variant="h6">Amenities</Typography>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Add Amenity"
+                  value={newAmenity}
+                  onChange={(e) => setNewAmenity(e.target.value)}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" &&
+                    (e.preventDefault(), handleAddAmenity())
+                  }
+                  placeholder="e.g., WiFi, Pool, Parking"
+                />
+                <Button onClick={handleAddAmenity} variant="outlined">
+                  Add
+                </Button>
+              </Box>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                {amenities.map((amenity, index) => (
+                  <Chip
+                    key={index}
+                    label={amenity}
+                    onDelete={() => handleRemoveAmenity(index)}
+                  />
+                ))}
+              </Box>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                fullWidth
+                sx={{ mt: 3 }}
+              >
+                Save Changes
+              </Button>
             </Stack>
           </Box>
         </Paper>
