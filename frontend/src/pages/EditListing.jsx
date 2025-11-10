@@ -49,6 +49,57 @@ const EditListing = () => {
   const [newAmenity, setNewAmenity] = useState("");
   const [error, setError] = useState("");
 
+  // Fetch listing data on mount
+  useEffect(() => {
+    const fetchListing = async () => {
+      try {
+        const response = await listingsAPI.getListingById(listingId);
+        const listing = response.data.listing;
+
+        // Populate form with existing data
+        setTitle(listing.title || "");
+        setPrice(listing.price?.toString() || "");
+
+        // Parse address
+        if (listing.address) {
+          setStreet(listing.address.street || "");
+          setCity(listing.address.city || "");
+          setState(listing.address.state || "");
+          setPostcode(listing.address.postcode || "");
+          setCountry(listing.address.country || "");
+        }
+
+        // Check if thumbnail is YouTube embed
+        if (listing.thumbnail?.includes("youtube.com/embed/")) {
+          setThumbnailType("youtube");
+          setYoutubeUrl(listing.thumbnail);
+        } else {
+          setThumbnailType("image");
+          setThumbnail(listing.thumbnail || "");
+        }
+
+        // Parse metadata
+        if (listing.metadata) {
+          setPropertyType(listing.metadata.propertyType || "");
+          setBathrooms(listing.metadata.bathrooms?.toString() || "");
+          setAmenities(listing.metadata.amenities || []);
+
+          // Parse bedrooms
+          if (
+            listing.metadata.bedrooms &&
+            listing.metadata.bedrooms.length > 0
+          ) {
+            setBedrooms(listing.metadata.bedrooms);
+          }
+        }
+      } catch (err) {
+        setError("Failed to load listing data. Please try again.");
+      }
+    };
+
+    fetchListing();
+  }, [listingId]);
+
   /**
    * Add a new bedroom field
    */
