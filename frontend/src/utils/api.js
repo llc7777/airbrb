@@ -96,6 +96,16 @@ export const listingsAPI = {
       metadata,
     });
   },
+  // Publish listing (auth required)
+  publishListing: (listingId, availability) => {
+    return authApi.put(`/listings/publish/${listingId}`, {
+      availability,
+    });
+  },
+  // Unpublish listing (auth required)
+  unpublishListing: (listingId) => {
+    return authApi.put(`/listings/unpublish/${listingId}`);
+  },
 };
 
 export default authApi;
