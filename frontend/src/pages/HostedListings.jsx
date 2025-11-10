@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import { listingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
+import PublishDialog from "../components/PublishDialog";
 
 /**
  * HostedListings Component
@@ -31,6 +32,8 @@ const HostedListings = () => {
   const [listings, setListings] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [listingToDelete, setListingToDelete] = useState(null);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [listingToPublish, setListingToPublish] = useState(null);
   const navigate = useNavigate();
   const { userEmail } = useAuth();
 
@@ -125,6 +128,73 @@ const HostedListings = () => {
     } catch (err) {
       console.error("Failed to delete listing:", err);
       alert("Failed to delete listing. Please try again.");
+    }
+  };
+
+  /**
+   * Open publish dialog
+   */
+  const handlePublishClick = (listing) => {
+    setListingToPublish(listing);
+    setPublishDialogOpen(true);
+  };
+
+  /**
+   * Close publish dialog
+   */
+  const handleClosePublishDialog = () => {
+    setPublishDialogOpen(false);
+    setListingToPublish(null);
+  };
+
+  /**
+   * Confirm publish listing with availability ranges
+   */
+  const handleConfirmPublish = async (availability) => {
+    if (!listingToPublish) return;
+
+    try {
+      await listingsAPI.publishListing(listingToPublish.id, availability);
+
+      // Update local state to mark as published
+      setListings(
+        listings.map((l) =>
+          l.id === listingToPublish.id ? { ...l, published: true } : l
+        )
+      );
+
+      handleClosePublishDialog();
+      alert("Listing published successfully!");
+    } catch (err) {
+      console.error("Failed to publish listing:", err);
+      alert(
+        err.response?.data?.error ||
+          "Failed to publish listing. Please try again."
+      );
+    }
+  };
+
+  /**
+   * Handle unpublish listing
+   */
+  const handleUnpublish = async (listingId) => {
+    try {
+      await listingsAPI.unpublishListing(listingId);
+
+      // Update local state to mark as unpublished
+      setListings(
+        listings.map((l) =>
+          l.id === listingId ? { ...l, published: false } : l
+        )
+      );
+
+      alert("Listing unpublished successfully!");
+    } catch (err) {
+      console.error("Failed to unpublish listing:", err);
+      alert(
+        err.response?.data?.error ||
+          "Failed to unpublish listing. Please try again."
+      );
     }
   };
 
@@ -238,6 +308,25 @@ const HostedListings = () => {
                       </Stack>
 
                       <Stack spacing={1}>
+                        {listing.published ? (
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={() => handleUnpublish(listing.id)}
+                          >
+                            Unpublish
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="success"
+                            fullWidth
+                            onClick={() => handlePublishClick(listing)}
+                          >
+                            Publish
+                          </Button>
+                        )}
+
                         <Button
                           variant="contained"
                           fullWidth
@@ -279,6 +368,14 @@ const HostedListings = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Publish Dialog */}
+      <PublishDialog
+        open={publishDialogOpen}
+        onClose={handleClosePublishDialog}
+        onPublish={handleConfirmPublish}
+        listingTitle={listingToPublish?.title || ""}
+      />
     </Box>
   );
 };
