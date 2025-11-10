@@ -209,6 +209,203 @@ const EditListing = () => {
       );
     }
   };
+
+  return (
+    <Container maxWidth="md">
+      <Box sx={{ mt: 4, mb: 4 }}>
+        <Button onClick={() => navigate("/hosted-listings")} sx={{ mb: 2 }}>
+          ← Back to Hosted Listings
+        </Button>
+
+        <Paper elevation={3} sx={{ p: 4 }}>
+          <Typography variant="h4" gutterBottom>
+            Edit Listing
+          </Typography>
+
+          {error && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit}>
+            <Stack spacing={3}>
+              {/* Title */}
+              <TextField
+                required
+                fullWidth
+                label="Listing Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Cozy Beach House"
+              />
+
+              {/* Address */}
+              <Typography variant="h6">Address</Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Street"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="City"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="State"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="Postcode"
+                    value={postcode}
+                    onChange={(e) => setPostcode(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="Country"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  />
+                </Grid>
+              </Grid>
+
+              {/* Price */}
+              <TextField
+                required
+                fullWidth
+                type="number"
+                label="Price per Night"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">$</InputAdornment>
+                  ),
+                }}
+              />
+
+              {/* Thumbnail */}
+              <FormControl component="fieldset">
+                <FormLabel component="legend">Thumbnail Type</FormLabel>
+                <RadioGroup
+                  row
+                  value={thumbnailType}
+                  onChange={(e) => setThumbnailType(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="image"
+                    control={<Radio />}
+                    label="Image"
+                  />
+                  <FormControlLabel
+                    value="youtube"
+                    control={<Radio />}
+                    label="YouTube Video"
+                  />
+                </RadioGroup>
+              </FormControl>
+
+              {thumbnailType === "image" ? (
+                <TextField
+                  fullWidth
+                  label="Thumbnail (Base64 or URL)"
+                  value={thumbnail}
+                  onChange={(e) => setThumbnail(e.target.value)}
+                  placeholder="Leave empty for default image"
+                  helperText="Provide a base64 encoded image or image URL"
+                />
+              ) : (
+                <TextField
+                  fullWidth
+                  label="YouTube Embedded URL"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                  helperText="Only embedded YouTube URLs are accepted (format: youtube.com/embed/VIDEO_ID)"
+                />
+              )}
+
+              {/* Property Type */}
+              <TextField
+                required
+                fullWidth
+                label="Property Type"
+                value={propertyType}
+                onChange={(e) => setPropertyType(e.target.value)}
+                placeholder="e.g., House, Apartment, Villa"
+              />
+
+              {/* Bathrooms */}
+              <TextField
+                fullWidth
+                type="number"
+                label="Number of Bathrooms"
+                value={bathrooms}
+                onChange={(e) => setBathrooms(e.target.value)}
+              />
+
+              {/* Bedrooms */}
+              <Typography variant="h6">Bedrooms</Typography>
+              {bedrooms.map((bedroom, index) => (
+                <Box
+                  key={index}
+                  sx={{ display: "flex", gap: 2, alignItems: "center" }}
+                >
+                  <TextField
+                    type="number"
+                    label="Number of Beds"
+                    value={bedroom.beds}
+                    onChange={(e) =>
+                      handleBedroomChange(index, "beds", e.target.value)
+                    }
+                    sx={{ flex: 1 }}
+                  />
+                  <TextField
+                    label="Bed Type"
+                    value={bedroom.type}
+                    onChange={(e) =>
+                      handleBedroomChange(index, "type", e.target.value)
+                    }
+                    placeholder="e.g., Queen, King, Single"
+                    sx={{ flex: 1 }}
+                  />
+                  <IconButton
+                    onClick={() => handleRemoveBedroom(index)}
+                    color="error"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddBedroom}
+                variant="outlined"
+              >
+                Add Bedroom
+              </Button>
+            </Stack>
+          </Box>
+        </Paper>
+      </Box>
+    </Container>
+  );
 };
 
 export default EditListing;
