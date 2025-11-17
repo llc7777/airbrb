@@ -64,7 +64,7 @@ const Dashboard = () => {
    * Navigate to all listings page
    */
   const handleViewAllListings = () => {
-    navigate("/all-listings");
+    navigate("/");
   };
 
   return (
