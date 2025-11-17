@@ -65,7 +65,7 @@ const Landing = () => {
     };
 
     fetchPublishedListings();
-  }, [userEmail]);
+  }, []);
 
   /**
    * Sort listings according to requirements:

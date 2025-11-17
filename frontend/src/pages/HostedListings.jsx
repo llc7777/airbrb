@@ -44,46 +44,47 @@ const HostedListings = () => {
   const navigate = useNavigate();
   const { userEmail } = useAuth();
 
+  /**
+   * Fetch all listings owned by the current user
+   */
+  const fetchHostedListings = async () => {
+    if (!userEmail) return;
+
+    try {
+      const response = await listingsAPI.getAllListings();
+      const allListings = response.data.listings;
+
+      // Filter listings owned by current user
+      const myListings = allListings.filter(
+        (listing) => listing.owner === userEmail
+      );
+
+      // Fetch detailed information for each hosted listing using listing ID
+      const detailedListings = await Promise.all(
+        myListings.map(async (listing) => {
+          try {
+            // Call /listings/{listingid} API to get detailed info
+            const detailResponse = await listingsAPI.getListingById(listing.id);
+            return {
+              id: listing.id,
+              ...detailResponse.data.listing,
+            };
+          } catch (err) {
+            console.error(`Failed to fetch details for ${listing.id}:`, err);
+            // Return basic info if detail fetch fails
+            return listing;
+          }
+        })
+      );
+
+      setListings(detailedListings);
+    } catch (err) {
+      console.error("Failed to fetch listings:", err);
+    }
+  };
+
   // Fetch all listings and filter by owner
   useEffect(() => {
-    const fetchHostedListings = async () => {
-      if (!userEmail) return;
-
-      try {
-        const response = await listingsAPI.getAllListings();
-        const allListings = response.data.listings;
-
-        // Filter listings owned by current user
-        const myListings = allListings.filter(
-          (listing) => listing.owner === userEmail
-        );
-
-        // Fetch detailed information for each hosted listing using listing ID
-        const detailedListings = await Promise.all(
-          myListings.map(async (listing) => {
-            try {
-              // Call /listings/{listingid} API to get detailed info
-              const detailResponse = await listingsAPI.getListingById(
-                listing.id
-              );
-              return {
-                id: listing.id,
-                ...detailResponse.data.listing,
-              };
-            } catch (err) {
-              console.error(`Failed to fetch details for ${listing.id}:`, err);
-              // Return basic info if detail fetch fails
-              return listing;
-            }
-          })
-        );
-
-        setListings(detailedListings);
-      } catch (err) {
-        console.error("Failed to fetch listings:", err);
-      }
-    };
-
     fetchHostedListings();
   }, []);
 
@@ -168,14 +169,11 @@ const HostedListings = () => {
     try {
       await listingsAPI.publishListing(listingToPublish.id, availability);
 
-      // Update local state to mark as published
-      setListings(
-        listings.map((l) =>
-          l.id === listingToPublish.id ? { ...l, published: true } : l
-        )
-      );
-
       handleClosePublishDialog();
+
+      // Refetch listings to get updated published status
+      await fetchHostedListings();
+
       setSnackbar({
         open: true,
         message: "Listing published successfully!",
@@ -197,24 +195,23 @@ const HostedListings = () => {
     try {
       await listingsAPI.unpublishListing(listingId);
 
-      // Update local state to mark as unpublished
-      setListings(
-        listings.map((l) =>
-          l.id === listingId ? { ...l, published: false } : l
-        )
-      );
+      // Refetch listings to get updated published status
+      await fetchHostedListings();
 
       setSnackbar({
         open: true,
         message: "Listing unpublished successfully!",
-        severity: "error",
+        severity: "success",
       });
     } catch (err) {
       console.error("Failed to unpublish listing:", err);
-      alert(
-        err.response?.data?.error ||
-          "Failed to unpublish listing. Please try again."
-      );
+      setSnackbar({
+        open: true,
+        message:
+          err.response?.data?.error ||
+          "Failed to unpublish listing. Please try again.",
+        severity: "error",
+      });
     }
   };
 
