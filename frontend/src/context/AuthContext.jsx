@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext } from "react";
 
 // Create authentication context for global state management
 const AuthContext = createContext(null);
