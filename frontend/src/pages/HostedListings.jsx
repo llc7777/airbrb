@@ -19,6 +19,8 @@ import {
   DialogActions,
   AppBar,
   Toolbar,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { listingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
@@ -34,6 +36,11 @@ const HostedListings = () => {
   const [listingToDelete, setListingToDelete] = useState(null);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [listingToPublish, setListingToPublish] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const navigate = useNavigate();
   const { userEmail } = useAuth();
 
@@ -125,6 +132,11 @@ const HostedListings = () => {
       // Remove from local state
       setListings(listings.filter((l) => l.id !== listingToDelete.id));
       handleCloseDialog();
+      setSnackbar({
+        open: true,
+        message: "Listing deleted successfully!",
+        severity: "success",
+      });
     } catch (err) {
       console.error("Failed to delete listing:", err);
       alert("Failed to delete listing. Please try again.");
@@ -164,7 +176,11 @@ const HostedListings = () => {
       );
 
       handleClosePublishDialog();
-      alert("Listing published successfully!");
+      setSnackbar({
+        open: true,
+        message: "Listing published successfully!",
+        severity: "success",
+      });
     } catch (err) {
       console.error("Failed to publish listing:", err);
       alert(
@@ -188,7 +204,11 @@ const HostedListings = () => {
         )
       );
 
-      alert("Listing unpublished successfully!");
+      setSnackbar({
+        open: true,
+        message: "Listing unpublished successfully!",
+        severity: "error",
+      });
     } catch (err) {
       console.error("Failed to unpublish listing:", err);
       alert(
@@ -376,6 +396,23 @@ const HostedListings = () => {
         onPublish={handleConfirmPublish}
         listingTitle={listingToPublish?.title || ""}
       />
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
