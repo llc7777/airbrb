@@ -22,8 +22,8 @@ const BookingDialog = ({
   maxDate,
   pricePerNight,
 }) => {
-  const [startDate, setStartDate] = useState(initialStartDate);
-  const [endDate, setEndDate] = useState(initialEndDate);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const calculateNights = () => {
     if (!startDate || !endDate) return 0;
