@@ -250,7 +250,7 @@ const HostedListings = () => {
               },
             }}
           >
-            Back to Dashboard
+            My Dashboard
           </Button>
         </Toolbar>
       </AppBar>
