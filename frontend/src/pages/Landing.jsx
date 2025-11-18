@@ -286,6 +286,153 @@ const Landing = () => {
         </Typography>
 
         {/* Search and Filter Section */}
+        <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Search & Filter
+          </Typography>
+
+          <Stack spacing={3}>
+            {/* Search Text */}
+            <TextField
+              fullWidth
+              label="Search by title or city"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="e.g., Beach House or Sydney"
+              InputProps={{
+                startAdornment: (
+                  <SearchIcon sx={{ mr: 1, color: "action.active" }} />
+                ),
+              }}
+            />
+
+            {/* Bedrooms Filter */}
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Number of Bedrooms
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Min Bedrooms"
+                    value={minBedrooms}
+                    onChange={(e) => setMinBedrooms(e.target.value)}
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Max Bedrooms"
+                    value={maxBedrooms}
+                    onChange={(e) => setMaxBedrooms(e.target.value)}
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Date Range Filter */}
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Availability Date Range
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    label="Start Date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    label="End Date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Price Range Filter */}
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Price per Night ($)
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Min Price"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Max Price"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Sort by Rating */}
+            <FormControl fullWidth>
+              <InputLabel>Sort by Review Rating</InputLabel>
+              <Select
+                value={sortByRating}
+                label="Sort by Review Rating"
+                onChange={(e) => setSortByRating(e.target.value)}
+              >
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="desc">Highest to Lowest</MenuItem>
+                <MenuItem value="asc">Lowest to Highest</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* Action Buttons */}
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                variant="contained"
+                startIcon={<SearchIcon />}
+                onClick={handleSearch}
+                fullWidth
+              >
+                Search
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+                fullWidth
+              >
+                Clear Filters
+              </Button>
+            </Box>
+          </Stack>
+        </Paper>
+
+        {/* Results Count */}
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+          {filteredListings.length} listing(s) found
+        </Typography>
 
         {filteredListings.length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 8 }}>
