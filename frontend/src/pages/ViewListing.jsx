@@ -127,6 +127,38 @@ const ViewListing = () => {
   };
 
   /**
+   * Get earliest available date
+   */
+  const getMinAvailableDate = () => {
+    if (!listing?.availability || listing.availability.length === 0) {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    const allStartDates = listing.availability.map(
+      (range) => new Date(range.start)
+    );
+    const minDate = new Date(Math.min(...allStartDates));
+
+    return minDate.toISOString().split("T")[0];
+  };
+
+  /**
+   * Get latest available date
+   */
+  const getMaxAvailableDate = () => {
+    if (!listing?.availability || listing.availability.length === 0) {
+      return undefined;
+    }
+
+    const allEndDates = listing.availability.map(
+      (range) => new Date(range.end)
+    );
+    const maxDate = new Date(Math.max(...allEndDates));
+
+    return maxDate.toISOString().split("T")[0];
+  };
+
+  /**
    * Open booking dialog
    */
   const handleOpenBookingDialog = () => {
@@ -549,7 +581,8 @@ const ViewListing = () => {
               onChange={(e) => setBookingStartDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               inputProps={{
-                min: new Date().toISOString().split("T")[0],
+                min: getMinAvailableDate(),
+                max: getMaxAvailableDate(),
               }}
               fullWidth
             />
@@ -560,7 +593,8 @@ const ViewListing = () => {
               onChange={(e) => setBookingEndDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               inputProps={{
-                min: bookingStartDate || new Date().toISOString().split("T")[0],
+                min: getMinAvailableDate(),
+                max: getMaxAvailableDate(),
               }}
               fullWidth
             />

@@ -137,15 +137,13 @@ const Landing = () => {
     const withoutUserBookings = [];
 
     listingsArray.forEach((listing) => {
-      const hasUserBooking = bookings.some(
-        (booking) => {
-          const listingIdMatch = String(booking.listingId) === String(listing.id);
-          const ownerMatch = booking.owner === userEmail;
-          const statusMatch = booking.status === "accepted" || booking.status === "pending";
-          
-          return listingIdMatch && ownerMatch && statusMatch;
-        }
-      );
+      const hasUserBooking = bookings.some((booking) => {
+        const listingIdMatch = String(booking.listingId) === String(listing.id);
+        const ownerMatch = booking.owner === userEmail;
+        const statusMatch =
+          booking.status === "accepted" || booking.status === "pending";
+        return listingIdMatch && ownerMatch && statusMatch;
+      });
 
       if (hasUserBooking) {
         withUserBookings.push(listing);
@@ -637,7 +635,7 @@ const Landing = () => {
                         color="text.secondary"
                         sx={{ mb: 0.5 }}
                       >
-                        📅 {"Available: "}
+                        📅{" "}
                         {listing.availability && listing.availability.length > 0
                           ? `${listing.availability
                               .slice(0, 1)
