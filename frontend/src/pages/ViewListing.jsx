@@ -261,7 +261,7 @@ const ViewListing = () => {
                   ${priceInfo.totalPrice} total
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  ${listing.price} × {priceInfo.nights} night(s)
+                  ${listing.price} × {priceInfo.nights} nights
                 </Typography>
               </>
             ) : (
