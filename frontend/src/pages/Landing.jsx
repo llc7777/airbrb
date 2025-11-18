@@ -527,11 +527,7 @@ const Landing = () => {
                       </Box>
 
                       <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          mb: 1,
-                        }}
+                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
                       >
                         <Rating
                           value={averageRating}
@@ -548,56 +544,32 @@ const Landing = () => {
                         </Typography>
                       </Box>
 
-                      <Box sx={{ mb: 1 }}>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          📅 Available:
-                        </Typography>
-                        {listing.availability &&
-                        listing.availability.length > 0 ? (
-                          listing.availability
-                            .slice(0, 2)
-                            .map((range, index) => (
-                              <Typography
-                                key={index}
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ ml: 2 }}
-                              >
-                                {new Date(range.start).toLocaleDateString(
-                                  "en-US",
-                                  { month: "numeric", day: "numeric" }
-                                )}{" "}
-                                ~{" "}
-                                {new Date(range.end).toLocaleDateString(
-                                  "en-US",
-                                  { month: "numeric", day: "numeric" }
-                                )}
-                              </Typography>
-                            ))
-                        ) : (
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ ml: 2 }}
-                          >
-                            No dates available
-                          </Typography>
-                        )}
-                        {listing.availability &&
-                          listing.availability.length > 2 && (
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ ml: 2, fontStyle: "italic" }}
-                            >
-                              +{listing.availability.length - 2} more...
-                            </Typography>
-                          )}
-                      </Box>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 0.5 }}
+                      >
+                        📅{" "}
+                        {listing.availability && listing.availability.length > 0
+                          ? `${listing.availability
+                              .slice(0, 1)
+                              .map(
+                                (range) =>
+                                  `${new Date(range.start).toLocaleDateString(
+                                    "en-US",
+                                    { month: "numeric", day: "numeric" }
+                                  )} ~ ${new Date(range.end).toLocaleDateString(
+                                    "en-US",
+                                    { month: "numeric", day: "numeric" }
+                                  )}`
+                              )
+                              .join("")}${
+                              listing.availability.length > 1
+                                ? ` +${listing.availability.length - 1} more`
+                                : ""
+                            }`
+                          : "No dates available"}
+                      </Typography>
 
                       <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
                         ${listing.price} / night
