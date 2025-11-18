@@ -27,7 +27,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { listingsAPI } from "../utils/api";
+import { listingsAPI, bookingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 /**
@@ -37,6 +37,7 @@ import { useAuth } from "../context/AuthContext";
 const Landing = () => {
   const [allListings, setAllListings] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
+  const [userBookings, setUserBookings] = useState([]);
   const navigate = useNavigate();
   const { token, userEmail } = useAuth();
 
@@ -81,10 +82,8 @@ const Landing = () => {
           (listing) => listing.published === true
         );
 
-        // Sort listings by booking priority
-        const sortedListings = sortListings(publishedListings);
-        setAllListings(sortedListings);
-        setFilteredListings(sortedListings);
+        setAllListings(publishedListings);
+        setFilteredListings(publishedListings);
       } catch (err) {
         console.error("Failed to fetch listings:", err);
       }
@@ -93,15 +92,42 @@ const Landing = () => {
     fetchPublishedListings();
   }, []);
 
+  // Fetch user's bookings when token and userEmail are available
+  useEffect(() => {
+    const fetchUserBookings = async () => {
+      if (token && userEmail) {
+        try {
+          const bookingsResponse = await bookingsAPI.getAllBookings();
+          const bookings = bookingsResponse.data.bookings;
+          setUserBookings(bookings);
+        } catch (err) {
+          console.error("Failed to fetch bookings:", err);
+        }
+      } else {
+        setUserBookings([]);
+      }
+    };
+
+    fetchUserBookings();
+  }, []);
+
+  // Re-sort listings when userBookings changes
+  useEffect(() => {
+    if (allListings.length > 0) {
+      const sortedListings = sortListings(allListings, userBookings);
+      setFilteredListings(sortedListings);
+    }
+  }, [userBookings, allListings]);
+
   /**
    * Sort listings according to requirements:
    * 1. Bookings by logged-in user (accepted/pending) first
    * 2. Remaining listings in alphabetical order by title
    */
-  const sortListings = (listingsArray) => {
+  const sortListings = (listingsArray, bookings = []) => {
     // If user is not logged in, just sort alphabetically
-    if (!userEmail) {
-      return listingsArray.sort((a, b) =>
+    if (!userEmail || bookings.length === 0) {
+      return [...listingsArray].sort((a, b) =>
         a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
       );
     }
@@ -111,10 +137,14 @@ const Landing = () => {
     const withoutUserBookings = [];
 
     listingsArray.forEach((listing) => {
-      const hasUserBooking = listing.bookings?.some(
-        (booking) =>
-          booking.owner === userEmail &&
-          (booking.status === "accepted" || booking.status === "pending")
+      const hasUserBooking = bookings.some(
+        (booking) => {
+          const listingIdMatch = String(booking.listingId) === String(listing.id);
+          const ownerMatch = booking.owner === userEmail;
+          const statusMatch = booking.status === "accepted" || booking.status === "pending";
+          
+          return listingIdMatch && ownerMatch && statusMatch;
+        }
       );
 
       if (hasUserBooking) {
@@ -134,6 +164,22 @@ const Landing = () => {
 
     // Combine: user bookings first, then others
     return [...withUserBookings, ...withoutUserBookings];
+  };
+
+  /**
+   * Get user's booking status for a listing
+   */
+  const getUserBookingStatus = (listingId) => {
+    if (!userEmail) return null;
+
+    const booking = userBookings.find(
+      (b) =>
+        String(b.listingId) === String(listingId) &&
+        b.owner === userEmail &&
+        (b.status === "accepted" || b.status === "pending")
+    );
+
+    return booking?.status || null;
   };
 
   /**
@@ -493,6 +539,12 @@ const Landing = () => {
                       display: "flex",
                       flexDirection: "column",
                       transition: "transform 0.2s",
+                      bgcolor:
+                        getUserBookingStatus(listing.id) === "pending"
+                          ? "rgba(255, 152, 0, 0.08)"
+                          : getUserBookingStatus(listing.id) === "accepted"
+                          ? "rgba(76, 175, 80, 0.08)"
+                          : "background.paper",
                       "&:hover": {
                         transform: "translateY(-4px)",
                         boxShadow: 4,
@@ -524,9 +576,34 @@ const Landing = () => {
                       />
                     )}
                     <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" gutterBottom>
-                        {listing.title}
-                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="h6" sx={{ flex: 1 }}>
+                          {listing.title}
+                        </Typography>
+                        {getUserBookingStatus(listing.id) && (
+                          <Chip
+                            label={
+                              getUserBookingStatus(listing.id) === "pending"
+                                ? "Pending"
+                                : "Accepted"
+                            }
+                            size="small"
+                            color={
+                              getUserBookingStatus(listing.id) === "pending"
+                                ? "warning"
+                                : "success"
+                            }
+                            sx={{ ml: 1 }}
+                          />
+                        )}
+                      </Box>
 
                       <Box sx={{ mb: 2 }}>
                         <Chip
@@ -560,7 +637,7 @@ const Landing = () => {
                         color="text.secondary"
                         sx={{ mb: 0.5 }}
                       >
-                        📅{" "}
+                        📅 {"Available: "}
                         {listing.availability && listing.availability.length > 0
                           ? `${listing.availability
                               .slice(0, 1)
