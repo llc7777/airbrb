@@ -16,9 +16,16 @@ import {
   Toolbar,
   ImageList,
   ImageListItem,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { listingsAPI } from "../utils/api";
+import { listingsAPI, bookingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 /**
@@ -35,6 +42,16 @@ const ViewListing = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAllReviews, setShowAllReviews] = useState(false);
+
+  // Booking states
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [bookingStartDate, setBookingStartDate] = useState("");
+  const [bookingEndDate, setBookingEndDate] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   // Get search dates from URL state (passed from Landing page)
   const searchDates = location.state?.searchDates || null;
@@ -106,6 +123,101 @@ const ViewListing = () => {
         return "error";
       default:
         return "default";
+    }
+  };
+
+  /**
+   * Open booking dialog
+   */
+  const handleOpenBookingDialog = () => {
+    // Pre-fill dates if they came from search
+    if (searchDates) {
+      setBookingStartDate(searchDates.startDate || "");
+      setBookingEndDate(searchDates.endDate || "");
+    }
+    setBookingDialogOpen(true);
+  };
+
+  /**
+   * Close booking dialog
+   */
+  const handleCloseBookingDialog = () => {
+    setBookingDialogOpen(false);
+    setBookingStartDate("");
+    setBookingEndDate("");
+  };
+
+  /**
+   * Calculate total price for booking
+   */
+  const calculateBookingPrice = () => {
+    if (!bookingStartDate || !bookingEndDate) return 0;
+
+    const start = new Date(bookingStartDate);
+    const end = new Date(bookingEndDate);
+    const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+    return listing.price * nights;
+  };
+
+  /**
+   * Submit booking
+   */
+  const handleConfirmBooking = async () => {
+    if (!bookingStartDate || !bookingEndDate) {
+      setSnackbar({
+        open: true,
+        message: "Please select both start and end dates",
+        severity: "error",
+      });
+      return;
+    }
+
+    const start = new Date(bookingStartDate);
+    const end = new Date(bookingEndDate);
+
+    if (start >= end) {
+      setSnackbar({
+        open: true,
+        message: "End date must be after start date",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      const dateRange = {
+        start: bookingStartDate,
+        end: bookingEndDate,
+      };
+      const totalPrice = calculateBookingPrice();
+
+      const response = await bookingsAPI.createBooking(
+        listingId,
+        dateRange,
+        totalPrice
+      );
+
+      setSnackbar({
+        open: true,
+        message: `Booking confirmed! Booking ID: ${response.data.bookingId}`,
+        severity: "success",
+      });
+
+      handleCloseBookingDialog();
+
+      // Refresh listing to show new booking
+      const refreshResponse = await listingsAPI.getListingById(listingId);
+      setListing(refreshResponse.data.listing);
+    } catch (err) {
+      console.error("Failed to create booking:", err);
+      setSnackbar({
+        open: true,
+        message:
+          err.response?.data?.error ||
+          "Failed to create booking. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -350,7 +462,12 @@ const ViewListing = () => {
 
           {/* Book Now Button */}
           {token && (
-            <Button variant="contained" fullWidth size="large">
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
+              onClick={handleOpenBookingDialog}
+            >
               Book Now
             </Button>
           )}
@@ -414,6 +531,78 @@ const ViewListing = () => {
           )}
         </Paper>
       </Container>
+
+      {/* Booking Dialog */}
+      <Dialog
+        open={bookingDialogOpen}
+        onClose={handleCloseBookingDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Make a Booking</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+            <TextField
+              label="Check-in Date"
+              type="date"
+              value={bookingStartDate}
+              onChange={(e) => setBookingStartDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              inputProps={{
+                min: new Date().toISOString().split("T")[0],
+              }}
+              fullWidth
+            />
+            <TextField
+              label="Check-out Date"
+              type="date"
+              value={bookingEndDate}
+              onChange={(e) => setBookingEndDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              inputProps={{
+                min: bookingStartDate || new Date().toISOString().split("T")[0],
+              }}
+              fullWidth
+            />
+            {bookingStartDate && bookingEndDate && (
+              <Box sx={{ p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Nights:{" "}
+                  {Math.ceil(
+                    (new Date(bookingEndDate) - new Date(bookingStartDate)) /
+                      (1000 * 60 * 60 * 24)
+                  )}
+                </Typography>
+                <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
+                  Total: ${calculateBookingPrice()}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseBookingDialog}>Cancel</Button>
+          <Button onClick={handleConfirmBooking} variant="contained">
+            Confirm Booking
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
