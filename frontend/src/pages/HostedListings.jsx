@@ -223,10 +223,33 @@ const HostedListings = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             My Hosted Listings
           </Typography>
-          <Button color="inherit" onClick={() => navigate("/listings/new")}>
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => navigate("/listings/new")}
+            sx={{
+              borderColor: "rgba(255, 255, 255, 0.5)",
+              mr: 2,
+              "&:hover": {
+                borderColor: "white",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
             Create Your Listing
           </Button>
-          <Button color="inherit" onClick={() => navigate("/dashboard")}>
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => navigate("/dashboard")}
+            sx={{
+              borderColor: "rgba(255, 255, 255, 0.5)",
+              "&:hover": {
+                borderColor: "white",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
             Back to Dashboard
           </Button>
         </Toolbar>

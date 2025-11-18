@@ -271,7 +271,18 @@ const Landing = () => {
           </Typography>
           {token ? (
             <>
-              <Button color="inherit" onClick={() => navigate("/dashboard")}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => navigate("/dashboard")}
+                sx={{
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  "&:hover": {
+                    borderColor: "white",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
                 My Dashboard
               </Button>
             </>
