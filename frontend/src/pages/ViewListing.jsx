@@ -306,6 +306,112 @@ const ViewListing = () => {
                 <Divider sx={{ my: 2 }} />
               </>
             )}
+
+          {/* User's Bookings */}
+          {token && userBookings.length > 0 && (
+            <>
+              <Typography variant="h6" gutterBottom>
+                Your Booking(s)
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {userBookings.map((booking, index) => (
+                  <Card key={index} variant="outlined">
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="subtitle2">
+                          Booking {index + 1}
+                        </Typography>
+                        <Chip
+                          label={booking.status}
+                          color={getStatusColor(booking.status)}
+                          size="small"
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        {booking.dateRange?.start} to {booking.dateRange?.end}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Total: ${booking.totalPrice}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+              <Divider sx={{ my: 2 }} />
+            </>
+          )}
+
+          {/* Book Now Button */}
+          {token && (
+            <Button variant="contained" fullWidth size="large">
+              Book Now
+            </Button>
+          )}
+        </Paper>
+
+        {/* Reviews Section */}
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Reviews ({totalReviews})
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Rating value={averageRating} precision={0.5} readOnly />
+            <Typography variant="body1" sx={{ ml: 1 }}>
+              {averageRating.toFixed(1)} average rating
+            </Typography>
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          {listing.reviews && listing.reviews.length > 0 ? (
+            <>
+              <Box>
+                {(showAllReviews
+                  ? listing.reviews
+                  : listing.reviews.slice(0, 3)
+                ).map((review, index) => (
+                  <Box key={index} sx={{ mb: 3 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <Rating value={review.rating} size="small" readOnly />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ ml: 1 }}
+                      >
+                        by {review.owner}
+                      </Typography>
+                    </Box>
+                    {review.comment && (
+                      <Typography variant="body2">{review.comment}</Typography>
+                    )}
+                    <Divider sx={{ mt: 2 }} />
+                  </Box>
+                ))}
+              </Box>
+              {listing.reviews.length > 3 && (
+                <Button
+                  variant="text"
+                  onClick={() => setShowAllReviews(!showAllReviews)}
+                  sx={{ mt: 1 }}
+                >
+                  {showAllReviews
+                    ? "Show Less"
+                    : `Show All ${listing.reviews.length} Reviews`}
+                </Button>
+              )}
+            </>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No reviews yet
+            </Typography>
+          )}
         </Paper>
       </Container>
     </Box>
