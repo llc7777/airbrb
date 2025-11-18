@@ -16,17 +16,12 @@ import {
   Toolbar,
   ImageList,
   ImageListItem,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { listingsAPI, bookingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
+import BookingDialog from "../components/BookingDialog";
+import NotificationSnackbar from "../components/NotificationSnackbar";
 
 /**
  * ViewListing Component
@@ -45,8 +40,6 @@ const ViewListing = () => {
 
   // Booking states
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
-  const [bookingStartDate, setBookingStartDate] = useState("");
-  const [bookingEndDate, setBookingEndDate] = useState("");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -159,44 +152,10 @@ const ViewListing = () => {
   };
 
   /**
-   * Open booking dialog
-   */
-  const handleOpenBookingDialog = () => {
-    // Pre-fill dates if they came from search
-    if (searchDates) {
-      setBookingStartDate(searchDates.startDate || "");
-      setBookingEndDate(searchDates.endDate || "");
-    }
-    setBookingDialogOpen(true);
-  };
-
-  /**
-   * Close booking dialog
-   */
-  const handleCloseBookingDialog = () => {
-    setBookingDialogOpen(false);
-    setBookingStartDate("");
-    setBookingEndDate("");
-  };
-
-  /**
-   * Calculate total price for booking
-   */
-  const calculateBookingPrice = () => {
-    if (!bookingStartDate || !bookingEndDate) return 0;
-
-    const start = new Date(bookingStartDate);
-    const end = new Date(bookingEndDate);
-    const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-
-    return listing.price * nights;
-  };
-
-  /**
    * Submit booking
    */
-  const handleConfirmBooking = async () => {
-    if (!bookingStartDate || !bookingEndDate) {
+  const handleConfirmBooking = async (startDate, endDate, totalPrice) => {
+    if (!startDate || !endDate) {
       setSnackbar({
         open: true,
         message: "Please select both start and end dates",
@@ -205,8 +164,8 @@ const ViewListing = () => {
       return;
     }
 
-    const start = new Date(bookingStartDate);
-    const end = new Date(bookingEndDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
     if (start >= end) {
       setSnackbar({
@@ -219,10 +178,9 @@ const ViewListing = () => {
 
     try {
       const dateRange = {
-        start: bookingStartDate,
-        end: bookingEndDate,
+        start: startDate,
+        end: endDate,
       };
-      const totalPrice = calculateBookingPrice();
 
       const response = await bookingsAPI.createBooking(
         listingId,
@@ -236,7 +194,7 @@ const ViewListing = () => {
         severity: "success",
       });
 
-      handleCloseBookingDialog();
+      setBookingDialogOpen(false);
 
       // Refresh listing to show new booking
       const refreshResponse = await listingsAPI.getListingById(listingId);
@@ -498,7 +456,7 @@ const ViewListing = () => {
               variant="contained"
               fullWidth
               size="large"
-              onClick={handleOpenBookingDialog}
+              onClick={() => setBookingDialogOpen(true)}
             >
               Book Now
             </Button>
@@ -565,78 +523,22 @@ const ViewListing = () => {
       </Container>
 
       {/* Booking Dialog */}
-      <Dialog
+      <BookingDialog
         open={bookingDialogOpen}
-        onClose={handleCloseBookingDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Make a Booking</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            <TextField
-              label="Check-in Date"
-              type="date"
-              value={bookingStartDate}
-              onChange={(e) => setBookingStartDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              inputProps={{
-                min: getMinAvailableDate(),
-                max: getMaxAvailableDate(),
-              }}
-              fullWidth
-            />
-            <TextField
-              label="Check-out Date"
-              type="date"
-              value={bookingEndDate}
-              onChange={(e) => setBookingEndDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              inputProps={{
-                min: getMinAvailableDate(),
-                max: getMaxAvailableDate(),
-              }}
-              fullWidth
-            />
-            {bookingStartDate && bookingEndDate && (
-              <Box sx={{ p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Nights:{" "}
-                  {Math.ceil(
-                    (new Date(bookingEndDate) - new Date(bookingStartDate)) /
-                      (1000 * 60 * 60 * 24)
-                  )}
-                </Typography>
-                <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
-                  Total: ${calculateBookingPrice()}
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseBookingDialog}>Cancel</Button>
-          <Button onClick={handleConfirmBooking} variant="contained">
-            Confirm Booking
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onClose={() => setBookingDialogOpen(false)}
+        onConfirm={handleConfirmBooking}
+        minDate={getMinAvailableDate()}
+        maxDate={getMaxAvailableDate()}
+        pricePerNight={listing.price}
+      />
 
       {/* Snackbar for notifications */}
-      <Snackbar
+      <NotificationSnackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 };

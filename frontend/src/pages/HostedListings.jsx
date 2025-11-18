@@ -19,12 +19,11 @@ import {
   DialogActions,
   AppBar,
   Toolbar,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import { listingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import PublishDialog from "../components/PublishDialog";
+import NotificationSnackbar from "../components/NotificationSnackbar";
 
 /**
  * HostedListings Component
@@ -418,21 +417,12 @@ const HostedListings = () => {
       />
 
       {/* Snackbar for notifications */}
-      <Snackbar
+      <NotificationSnackbar
         open={snackbar.open}
-        autoHideDuration={4000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 };
