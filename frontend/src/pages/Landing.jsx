@@ -13,7 +13,17 @@ import {
   Chip,
   AppBar,
   Toolbar,
+  TextField,
+  Paper,
+  Stack,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Slider,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
 import { listingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -22,9 +32,20 @@ import { useAuth } from "../context/AuthContext";
  * Displays all published listings (available to all users)
  */
 const Landing = () => {
-  const [listings, setListings] = useState([]);
+  const [allListings, setAllListings] = useState([]);
+  const [filteredListings, setFilteredListings] = useState([]);
   const navigate = useNavigate();
   const { token, userEmail } = useAuth();
+
+  // Search and filter states
+  const [searchText, setSearchText] = useState("");
+  const [minBedrooms, setMinBedrooms] = useState("");
+  const [maxBedrooms, setMaxBedrooms] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortByRating, setSortByRating] = useState(""); // "asc" or "desc"
 
   // Fetch all published listings
   useEffect(() => {
@@ -56,9 +77,10 @@ const Landing = () => {
           (listing) => listing.published === true
         );
 
-        // Sort listings
+        // Sort listings by booking priority
         const sortedListings = sortListings(publishedListings);
-        setListings(sortedListings);
+        setAllListings(sortedListings);
+        setFilteredListings(sortedListings);
       } catch (err) {
         console.error("Failed to fetch listings:", err);
       }
@@ -122,6 +144,108 @@ const Landing = () => {
   };
 
   /**
+   * Check if a listing is available for the entire date range
+   */
+  const isAvailableForDateRange = (listing, start, end) => {
+    if (!start || !end || !listing.availability) return true;
+
+    const searchStart = new Date(start);
+    const searchEnd = new Date(end);
+
+    // Check if any availability range covers the entire search period
+    return listing.availability.some((range) => {
+      const availStart = new Date(range.start);
+      const availEnd = new Date(range.end);
+      return availStart <= searchStart && availEnd >= searchEnd;
+    });
+  };
+
+  /**
+   * Apply all filters and search
+   */
+  const handleSearch = () => {
+    let results = [...allListings];
+
+    // Filter by search text (title or city)
+    if (searchText.trim()) {
+      const searchLower = searchText.toLowerCase();
+      const searchWords = searchLower.split(" ").filter((w) => w);
+
+      results = results.filter((listing) => {
+        const titleLower = listing.title?.toLowerCase() || "";
+        const cityLower = listing.address?.city?.toLowerCase() || "";
+
+        // Check if any search word matches title or city
+        return searchWords.some(
+          (word) => titleLower.includes(word) || cityLower.includes(word)
+        );
+      });
+    }
+
+    // Filter by bedrooms
+    if (minBedrooms !== "") {
+      results = results.filter(
+        (listing) => (listing.metadata?.beds || 0) >= parseInt(minBedrooms)
+      );
+    }
+    if (maxBedrooms !== "") {
+      results = results.filter(
+        (listing) => (listing.metadata?.beds || 0) <= parseInt(maxBedrooms)
+      );
+    }
+
+    // Filter by date range
+    if (startDate && endDate) {
+      results = results.filter((listing) =>
+        isAvailableForDateRange(listing, startDate, endDate)
+      );
+    }
+
+    // Filter by price
+    if (minPrice !== "") {
+      results = results.filter(
+        (listing) => (listing.price || 0) >= parseFloat(minPrice)
+      );
+    }
+    if (maxPrice !== "") {
+      results = results.filter(
+        (listing) => (listing.price || 0) <= parseFloat(maxPrice)
+      );
+    }
+
+    // Sort by rating if selected
+    if (sortByRating) {
+      results.sort((a, b) => {
+        const ratingA = calculateAverageRating(a.reviews);
+        const ratingB = calculateAverageRating(b.reviews);
+
+        if (sortByRating === "desc") {
+          return ratingB - ratingA; // Highest to lowest
+        } else {
+          return ratingA - ratingB; // Lowest to highest
+        }
+      });
+    }
+
+    setFilteredListings(results);
+  };
+
+  /**
+   * Clear all filters
+   */
+  const handleClearFilters = () => {
+    setSearchText("");
+    setMinBedrooms("");
+    setMaxBedrooms("");
+    setStartDate("");
+    setEndDate("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSortByRating("");
+    setFilteredListings(allListings);
+  };
+
+  /**
    * Handle view listing details
    */
   const handleViewListing = (listingId) => {
@@ -161,15 +285,17 @@ const Landing = () => {
           Available Listings
         </Typography>
 
-        {listings.length === 0 ? (
+        {/* Search and Filter Section */}
+
+        {filteredListings.length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 8 }}>
             <Typography variant="h6" color="text.secondary">
-              No published listings available at the moment.
+              No listings match your search criteria.
             </Typography>
           </Box>
         ) : (
           <Grid container spacing={3}>
-            {listings.map((listing) => {
+            {filteredListings.map((listing) => {
               const averageRating = calculateAverageRating(listing.reviews);
               const totalReviews = listing.reviews?.length || 0;
 
