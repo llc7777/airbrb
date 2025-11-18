@@ -253,7 +253,12 @@ const Landing = () => {
    * Handle view listing details
    */
   const handleViewListing = (listingId) => {
-    navigate(`/listings/${listingId}`);
+    // Pass search dates to ViewListing page if they were used
+    const searchDates = startDate && endDate ? { startDate, endDate } : null;
+
+    navigate(`/listings/${listingId}`, {
+      state: { searchDates },
+    });
   };
 
   return (
@@ -543,13 +548,56 @@ const Landing = () => {
                         </Typography>
                       </Box>
 
-                      <Typography variant="body2" color="text.secondary">
-                        🛏️ {listing.metadata?.beds || 0} Beds
-                      </Typography>
-
-                      <Typography variant="body2" color="text.secondary">
-                        🚿 {listing.metadata?.bathrooms || 0} Bathrooms
-                      </Typography>
+                      <Box sx={{ mb: 1 }}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          📅 Available:
+                        </Typography>
+                        {listing.availability &&
+                        listing.availability.length > 0 ? (
+                          listing.availability
+                            .slice(0, 2)
+                            .map((range, index) => (
+                              <Typography
+                                key={index}
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ ml: 2 }}
+                              >
+                                {new Date(range.start).toLocaleDateString(
+                                  "en-US",
+                                  { month: "numeric", day: "numeric" }
+                                )}{" "}
+                                ~{" "}
+                                {new Date(range.end).toLocaleDateString(
+                                  "en-US",
+                                  { month: "numeric", day: "numeric" }
+                                )}
+                              </Typography>
+                            ))
+                        ) : (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ ml: 2 }}
+                          >
+                            No dates available
+                          </Typography>
+                        )}
+                        {listing.availability &&
+                          listing.availability.length > 2 && (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ ml: 2, fontStyle: "italic" }}
+                            >
+                              +{listing.availability.length - 2} more...
+                            </Typography>
+                          )}
+                      </Box>
 
                       <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
                         ${listing.price} / night
