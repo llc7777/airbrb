@@ -112,6 +112,10 @@ export const listingsAPI = {
  * Bookings API endpoints
  */
 export const bookingsAPI = {
+  // Get all bookings (auth required)
+  getAllBookings: () => {
+    return authApi.get("/bookings");
+  },
   // Create new booking (auth required)
   createBooking: (listingId, dateRange, totalPrice) => {
     return authApi.post(`/bookings/new/${listingId}`, {
