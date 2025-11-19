@@ -16,6 +16,7 @@ import {
   Toolbar,
   ImageList,
   ImageListItem,
+  Tooltip,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { listingsAPI, bookingsAPI } from "../utils/api";
@@ -23,6 +24,7 @@ import { useAuth } from "../context/AuthContext";
 import BookingDialog from "../components/BookingDialog";
 import ReviewDialog from "../components/ReviewDialog";
 import NotificationSnackbar from "../components/NotificationSnackbar";
+import RatingFilterDialog from "../components/RatingFilterDialog";
 
 /**
  * ViewListing Component
@@ -39,6 +41,8 @@ const ViewListing = () => {
   const [error, setError] = useState("");
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [userBookings, setUserBookings] = useState([]);
+  const [ratingFilterOpen, setRatingFilterOpen] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(null);
 
   // Booking states
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
@@ -97,6 +101,66 @@ const ViewListing = () => {
     if (validReviews.length === 0) return 0;
     const sum = validReviews.reduce((acc, review) => acc + review.rating, 0);
     return sum / validReviews.length;
+  };
+
+  /**
+   * Calculate rating breakdown (count and percentage for each star rating)
+   */
+  const calculateRatingBreakdown = (reviews) => {
+    if (!reviews || reviews.length === 0) {
+      return [0, 0, 0, 0, 0];
+    }
+
+    const breakdown = [0, 0, 0, 0, 0]; // Index 0 = 5 stars, Index 4 = 1 star
+    reviews.forEach((review) => {
+      if (review.rating >= 1 && review.rating <= 5) {
+        breakdown[5 - review.rating]++;
+      }
+    });
+
+    return breakdown;
+  };
+
+  /**
+   * Generate tooltip content for rating breakdown
+   */
+  const getRatingTooltipContent = () => {
+    if (!listing?.reviews || listing.reviews.length === 0) {
+      return "No reviews yet";
+    }
+
+    const breakdown = calculateRatingBreakdown(listing.reviews);
+    const total = listing.reviews.length;
+
+    return (
+      <Box sx={{ p: 1 }}>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+          Rating Breakdown
+        </Typography>
+        {[5, 4, 3, 2, 1].map((star) => {
+          const count = breakdown[5 - star];
+          const percentage = ((count / total) * 100).toFixed(1);
+          return (
+            <Box
+              key={star}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mb: 0.5,
+                fontSize: "0.875rem",
+              }}
+            >
+              <Typography variant="body2" sx={{ minWidth: 50 }}>
+                {star} ★
+              </Typography>
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                {count} ({percentage}%)
+              </Typography>
+            </Box>
+          );
+        })}
+      </Box>
+    );
   };
 
   /**
@@ -567,12 +631,46 @@ const ViewListing = () => {
               </Button>
             )}
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Rating value={averageRating} precision={0.5} readOnly />
-            <Typography variant="body1" sx={{ ml: 1 }}>
-              {averageRating.toFixed(1)} average rating
-            </Typography>
-          </Box>
+          <Tooltip
+            title={getRatingTooltipContent()}
+            arrow
+            placement="right"
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  bgcolor: "white",
+                  color: "text.primary",
+                  boxShadow: 3,
+                  border: "1px solid #ddd",
+                  maxWidth: 300,
+                },
+              },
+            }}
+          >
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                mb: 2,
+                cursor: listing?.reviews?.length > 0 ? "pointer" : "default",
+                "&:hover": {
+                  opacity: listing?.reviews?.length > 0 ? 0.8 : 1,
+                },
+              }}
+              onClick={() => {
+                if (listing?.reviews?.length > 0) {
+                  // Open dialog showing all ratings breakdown
+                  setSelectedRating(null); // null means show all ratings
+                  setRatingFilterOpen(true);
+                }
+              }}
+            >
+              <Rating value={averageRating} precision={0.5} readOnly />
+              <Typography variant="body1" sx={{ ml: 1 }}>
+                {averageRating.toFixed(1)} average rating
+              </Typography>
+            </Box>
+          </Tooltip>
 
           <Divider sx={{ my: 2 }} />
 
@@ -637,6 +735,15 @@ const ViewListing = () => {
         onClose={() => setReviewDialogOpen(false)}
         onSubmit={handleSubmitReview}
         listingTitle={listing.title}
+      />
+
+      {/* Rating Filter Dialog */}
+      <RatingFilterDialog
+        open={ratingFilterOpen}
+        onClose={() => setRatingFilterOpen(false)}
+        selectedRating={selectedRating}
+        onSelectRating={setSelectedRating}
+        reviews={listing?.reviews}
       />
 
       {/* Snackbar for notifications */}
