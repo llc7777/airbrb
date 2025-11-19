@@ -13,21 +13,25 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem("token") || null;
   });
 
-  // User email state (stored only in context, not in localStorage)
-  const [userEmail, setUserEmail] = useState(null);
+  // User email state (also persisted in localStorage)
+  const [userEmail, setUserEmail] = useState(() => {
+    return localStorage.getItem("userEmail") || null;
+  });
 
-  // Login: Store token in localStorage and email in context
+  // Login: Store token and email in localStorage and context
   const login = (newToken, email) => {
     setToken(newToken);
     localStorage.setItem("token", newToken);
     setUserEmail(email);
+    localStorage.setItem("userEmail", email);
   };
 
-  // Logout: Remove token from state and localStorage, clear email
+  // Logout: Remove token and email from state and localStorage
   const logout = () => {
     setToken(null);
     setUserEmail(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
   };
 
   // Context value to be provided

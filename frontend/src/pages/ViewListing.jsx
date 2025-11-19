@@ -38,6 +38,7 @@ const ViewListing = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [userBookings, setUserBookings] = useState([]);
 
   // Booking states
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
@@ -66,6 +67,26 @@ const ViewListing = () => {
 
     fetchListingDetails();
   }, [listingId]);
+
+  // Fetch user bookings if logged in
+  useEffect(() => {
+    const fetchUserBookings = async () => {
+      if (!token || !userEmail) {
+        setUserBookings([]);
+        return;
+      }
+
+      try {
+        const response = await bookingsAPI.getAllBookings();
+        setUserBookings(response.data.bookings || []);
+      } catch (err) {
+        console.error("Failed to fetch user bookings:", err);
+        setUserBookings([]);
+      }
+    };
+
+    fetchUserBookings();
+  }, [token, userEmail]);
 
   /**
    * Calculate average rating from reviews
@@ -100,19 +121,25 @@ const ViewListing = () => {
    * Get user's bookings for this listing
    */
   const getUserBookings = () => {
-    if (!userEmail || !listing?.bookings) return [];
+    if (!userEmail || !userBookings || userBookings.length === 0) return [];
 
-    return listing.bookings.filter((booking) => booking.owner === userEmail);
+    return userBookings.filter(
+      (booking) =>
+        booking.listingId === parseInt(listingId) && booking.owner === userEmail
+    );
   };
 
   /**
    * Get accepted booking ID for leaving a review
    */
   const getAcceptedBookingId = () => {
-    if (!userEmail || !listing?.bookings) return null;
+    if (!userEmail || !userBookings || userBookings.length === 0) return null;
 
-    const acceptedBooking = listing.bookings.find(
-      (booking) => booking.owner === userEmail && booking.status === "accepted"
+    const acceptedBooking = userBookings.find(
+      (booking) =>
+        booking.listingId === listingId &&
+        booking.owner === userEmail &&
+        booking.status === "accepted"
     );
 
     return acceptedBooking?.id || null;
@@ -294,7 +321,7 @@ const ViewListing = () => {
   const averageRating = calculateAverageRating(listing.reviews);
   const totalReviews = listing.reviews?.length || 0;
   const priceInfo = calculatePricePerStay();
-  const userBookings = getUserBookings();
+  const myBookings = getUserBookings();
 
   // Collect all images (thumbnail + property images)
   const allImages = [
@@ -467,13 +494,13 @@ const ViewListing = () => {
             )}
 
           {/* User's Bookings */}
-          {token && userBookings.length > 0 && (
+          {token && myBookings.length > 0 && (
             <>
               <Typography variant="h6" gutterBottom>
                 Your Booking(s)
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {userBookings.map((booking, index) => (
+                {myBookings.map((booking, index) => (
                   <Card key={index} variant="outlined">
                     <CardContent>
                       <Box
