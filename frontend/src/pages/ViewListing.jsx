@@ -21,6 +21,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { listingsAPI, bookingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import BookingDialog from "../components/BookingDialog";
+import ReviewDialog from "../components/ReviewDialog";
 import NotificationSnackbar from "../components/NotificationSnackbar";
 
 /**
@@ -40,6 +41,7 @@ const ViewListing = () => {
 
   // Booking states
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -104,6 +106,19 @@ const ViewListing = () => {
   };
 
   /**
+   * Get accepted booking ID for leaving a review
+   */
+  const getAcceptedBookingId = () => {
+    if (!userEmail || !listing?.bookings) return null;
+
+    const acceptedBooking = listing.bookings.find(
+      (booking) => booking.owner === userEmail && booking.status === "accepted"
+    );
+
+    return acceptedBooking?.id || null;
+  };
+
+  /**
    * Get status chip color based on booking status
    */
   const getStatusColor = (status) => {
@@ -149,6 +164,48 @@ const ViewListing = () => {
     const maxDate = new Date(Math.max(...allEndDates));
 
     return maxDate.toISOString().split("T")[0];
+  };
+
+  /**
+   * Submit review
+   */
+  const handleSubmitReview = async (rating, comment) => {
+    const bookingId = getAcceptedBookingId();
+
+    if (!bookingId) {
+      setSnackbar({
+        open: true,
+        message: "You need an accepted booking to leave a review",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      await listingsAPI.leaveReview(listingId, bookingId, {
+        rating,
+        comment,
+      });
+
+      setSnackbar({
+        open: true,
+        message: "Review submitted successfully!",
+        severity: "success",
+      });
+
+      // Refresh listing to show new review
+      const refreshResponse = await listingsAPI.getListingById(listingId);
+      setListing(refreshResponse.data.listing);
+    } catch (err) {
+      console.error("Failed to submit review:", err);
+      setSnackbar({
+        open: true,
+        message:
+          err.response?.data?.error ||
+          "Failed to submit review. Please try again.",
+        severity: "error",
+      });
+    }
   };
 
   /**
@@ -465,9 +522,24 @@ const ViewListing = () => {
 
         {/* Reviews Section */}
         <Paper elevation={2} sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Reviews ({totalReviews})
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6">Reviews ({totalReviews})</Typography>
+            {token && getAcceptedBookingId() && (
+              <Button
+                variant="contained"
+                onClick={() => setReviewDialogOpen(true)}
+              >
+                Leave a Review
+              </Button>
+            )}
+          </Box>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Rating value={averageRating} precision={0.5} readOnly />
             <Typography variant="body1" sx={{ ml: 1 }}>
@@ -530,6 +602,14 @@ const ViewListing = () => {
         minDate={getMinAvailableDate()}
         maxDate={getMaxAvailableDate()}
         pricePerNight={listing.price}
+      />
+
+      {/* Review Dialog */}
+      <ReviewDialog
+        open={reviewDialogOpen}
+        onClose={() => setReviewDialogOpen(false)}
+        onSubmit={handleSubmitReview}
+        listingTitle={listing.title}
       />
 
       {/* Snackbar for notifications */}

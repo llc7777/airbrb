@@ -106,6 +106,12 @@ export const listingsAPI = {
   unpublishListing: (listingId) => {
     return authApi.put(`/listings/unpublish/${listingId}`);
   },
+  // Leave a review for a listing (auth required)
+  leaveReview: (listingId, bookingId, review) => {
+    return authApi.put(`/listings/${listingId}/review/${bookingId}`, {
+      review,
+    });
+  },
 };
 
 /**
