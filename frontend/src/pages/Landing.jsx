@@ -290,7 +290,6 @@ const Landing = () => {
     setMinPrice("");
     setMaxPrice("");
     setSortByRating("");
-    setFilteredListings(allListings);
   };
 
   /**
