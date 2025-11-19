@@ -142,7 +142,6 @@ const ViewListing = () => {
           const percentage = ((count / total) * 100).toFixed(1);
           return (
             <Box
-              key={star}
               sx={{
                 display: "flex",
                 alignItems: "center",
