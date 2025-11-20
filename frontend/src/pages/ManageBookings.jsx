@@ -322,14 +322,21 @@ const ManageBookings = () => {
                         </TableCell>
                         <TableCell align="center">
                           <Stack
-                            direction="row"
-                            spacing={1}
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={0.5}
                             justifyContent="center"
+                            alignItems="center"
                           >
                             <Button
                               variant="contained"
                               color="success"
                               size="small"
+                              fullWidth
+                              sx={{
+                                minWidth: { xs: "70px", sm: "auto" },
+                                fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                                padding: { xs: "4px 8px", sm: "6px 16px" },
+                              }}
                               onClick={() => handleAcceptBooking(booking.id)}
                             >
                               Accept
@@ -338,6 +345,12 @@ const ManageBookings = () => {
                               variant="outlined"
                               color="error"
                               size="small"
+                              fullWidth
+                              sx={{
+                                minWidth: { xs: "70px", sm: "auto" },
+                                fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                                padding: { xs: "4px 8px", sm: "6px 16px" },
+                              }}
                               onClick={() => handleDeclineBooking(booking.id)}
                             >
                               Decline
