@@ -21,6 +21,7 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
   const notifiedBookingIdsRef = useRef(new Set());
 
   const open = Boolean(anchorEl);
+  unreadCount;
 
   /**
    * Load notified booking IDs and notifications from localStorage on mount

@@ -110,7 +110,7 @@ const Login = () => {
             </Button>
             <Box sx={{ textAlign: "center" }}>
               <Typography variant="body2">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Button
                   variant="text"
                   onClick={() => navigate("/register")}

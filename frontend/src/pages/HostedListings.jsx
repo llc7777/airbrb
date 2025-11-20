@@ -343,7 +343,7 @@ const HostedListings = () => {
         {listings.length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 8 }}>
             <Typography variant="h6" color="text.secondary">
-              You don't have any hosted listings yet.
+              You don&apos;t have any hosted listings yet.
             </Typography>
           </Box>
         ) : (
@@ -491,7 +491,7 @@ const HostedListings = () => {
         <DialogTitle>Delete Listing</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete "{listingToDelete?.title}"? This
+            Are you sure you want to delete {listingToDelete?.title}? This
             action cannot be undone.
           </DialogContentText>
         </DialogContent>
