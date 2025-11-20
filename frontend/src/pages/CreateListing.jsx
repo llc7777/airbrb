@@ -174,7 +174,7 @@ const CreateListing = () => {
       } catch (err) {
         setSnackbar({
           open: true,
-          message: "Failed to parse JSON file. Please check the file format.",
+          message: err,
           severity: "error",
         });
       }

@@ -29,7 +29,6 @@ import NavigationBar from "../components/NavigationBar";
  */
 const ManageBookings = () => {
   const { listingId } = useParams();
-  const navigate = useNavigate();
   const [listing, setListing] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [snackbar, setSnackbar] = useState({

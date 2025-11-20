@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   Button,
-  Grid,
   Rating,
   Chip,
   Paper,
@@ -38,7 +37,7 @@ const ViewListing = () => {
   const { listingId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { token, userEmail, logout } = useAuth();
+  const { token, userEmail } = useAuth();
 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);

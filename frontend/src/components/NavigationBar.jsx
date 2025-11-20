@@ -11,7 +11,6 @@ import {
   MenuItem,
   Box,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -33,7 +32,6 @@ const NavigationBar = ({
   const [notificationAnchor, setNotificationAnchor] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:800px)");
 
   const handleLogout = async () => {

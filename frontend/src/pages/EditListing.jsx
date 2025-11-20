@@ -100,7 +100,7 @@ const EditListing = () => {
       } catch (err) {
         setSnackbar({
           open: true,
-          message: "Failed to load listing data. Please try again.",
+          message: err,
           severity: "error",
         });
       }
