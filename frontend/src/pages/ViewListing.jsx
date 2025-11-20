@@ -188,7 +188,7 @@ const ViewListing = () => {
 
     return userBookings.filter(
       (booking) =>
-        booking.listingId === parseInt(listingId) && booking.owner === userEmail
+        booking.listingId === listingId && booking.owner === userEmail
     );
   };
 
@@ -202,7 +202,7 @@ const ViewListing = () => {
       (booking) =>
         booking.listingId === listingId &&
         booking.owner === userEmail &&
-        booking.status === "accepted"
+        booking.status === "pending"
     );
 
     return acceptedBooking?.id || null;
@@ -275,6 +275,7 @@ const ViewListing = () => {
       await listingsAPI.leaveReview(listingId, bookingId, {
         rating,
         comment,
+        owner: userEmail,
       });
 
       setSnackbar({
@@ -743,6 +744,7 @@ const ViewListing = () => {
         selectedRating={selectedRating}
         onSelectRating={setSelectedRating}
         reviews={listing?.reviews}
+        userEmail={userEmail}
       />
 
       {/* Snackbar for notifications */}

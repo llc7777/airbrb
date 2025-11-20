@@ -69,7 +69,7 @@ const RatingFilterDialog = ({
                     color="text.secondary"
                     sx={{ ml: 1 }}
                   >
-                    by {review.owner}
+                    by {review.owner || "Anonymous"}
                   </Typography>
                 </Box>
                 {review.comment && (
