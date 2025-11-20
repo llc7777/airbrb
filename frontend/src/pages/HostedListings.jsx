@@ -19,8 +19,10 @@ import {
   DialogActions,
   AppBar,
   Toolbar,
+  Paper,
 } from "@mui/material";
-import { listingsAPI } from "../utils/api";
+import { LineChart } from "@mui/x-charts/LineChart";
+import { listingsAPI, bookingsAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import PublishDialog from "../components/PublishDialog";
 import NotificationSnackbar from "../components/NotificationSnackbar";
@@ -31,6 +33,7 @@ import NotificationSnackbar from "../components/NotificationSnackbar";
  */
 const HostedListings = () => {
   const [listings, setListings] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [listingToDelete, setListingToDelete] = useState(null);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
@@ -82,9 +85,23 @@ const HostedListings = () => {
     }
   };
 
-  // Fetch all listings and filter by owner
+  /**
+   * Fetch all bookings
+   */
+  const fetchBookings = async () => {
+    try {
+      const response = await bookingsAPI.getAllBookings();
+      setBookings(response.data.bookings || []);
+    } catch (err) {
+      console.error("Failed to fetch bookings:", err);
+      setBookings([]);
+    }
+  };
+
+  // Fetch all listings and bookings
   useEffect(() => {
     fetchHostedListings();
+    fetchBookings();
   }, []);
 
   /**
@@ -96,6 +113,66 @@ const HostedListings = () => {
     if (validReviews.length === 0) return 0;
     const sum = validReviews.reduce((acc, review) => acc + review.rating, 0);
     return sum / validReviews.length;
+  };
+
+  /**
+   * Calculate profit data for the past 30 days
+   */
+  const calculateProfitData = () => {
+    const today = new Date();
+    const profitByDay = new Array(31).fill(0); // Index 0 = today, 30 = 30 days ago
+
+    // Get listing IDs owned by current user
+    const myListingIds = listings.map((listing) => listing.id);
+
+    // Filter bookings for my listings that are accepted
+    const acceptedBookings = bookings.filter(
+      (booking) =>
+        myListingIds.includes(booking.listingId) &&
+        booking.status === "accepted"
+    );
+
+    // Calculate profit for each day
+    acceptedBookings.forEach((booking) => {
+      const startDate = new Date(booking.dateRange.start);
+      const endDate = new Date(booking.dateRange.end);
+      const totalPrice = booking.totalPrice;
+
+      // Calculate number of nights
+      const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+      const pricePerNight = nights > 0 ? totalPrice / nights : 0;
+
+      // For each night in the booking, add profit to the corresponding day
+      for (
+        let date = new Date(startDate);
+        date <= endDate;
+        date.setDate(date.getDate() + 1)
+      ) {
+        const daysAgo = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+
+        // Only count if within the last 30 days
+        if (daysAgo >= 0 && daysAgo <= 30) {
+          profitByDay[daysAgo] += pricePerNight;
+        }
+      }
+    });
+
+    return profitByDay;
+  };
+
+  /**
+   * Get chart data for profit graph
+   */
+  const getChartData = () => {
+    const profitData = calculateProfitData();
+
+    // X-axis: days ago (30, 29, 28, ..., 1, 0)
+    const xAxisData = Array.from({ length: 31 }, (_, i) => 30 - i);
+
+    // Y-axis: profit for each day (reverse to match x-axis order)
+    const yAxisData = profitData.slice().reverse();
+
+    return { xAxisData, yAxisData };
   };
 
   /**
@@ -256,6 +333,44 @@ const HostedListings = () => {
 
       {/* Main Content */}
       <Container sx={{ mt: 4, mb: 4 }}>
+        {/* Profit Graph Section */}
+        {listings.length > 0 && (
+          <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+            <Typography variant="h5" gutterBottom>
+              Profit Over Last 30 Days
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Total profit from all your listings for each day
+            </Typography>
+            <Box sx={{ width: "100%", height: 400 }}>
+              <LineChart
+                xAxis={[
+                  {
+                    data: getChartData().xAxisData,
+                    label: "Days Ago (0 = Today)",
+                    scaleType: "linear",
+                    reverse: true,
+                  },
+                ]}
+                yAxis={[
+                  {
+                    label: "$ Profit on that day",
+                  },
+                ]}
+                series={[
+                  {
+                    data: getChartData().yAxisData,
+                    label: "Profit ($)",
+                    color: "#1976d2",
+                    showMark: true,
+                  },
+                ]}
+                height={350}
+              />
+            </Box>
+          </Paper>
+        )}
+
         {listings.length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 8 }}>
             <Typography variant="h6" color="text.secondary">
