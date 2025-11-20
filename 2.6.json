@@ -1,0 +1,40 @@
+{
+  "title": "Luxury Beach House with Ocean View",
+  "address": {
+    "street": "123 Coastal Drive",
+    "city": "Sydney",
+    "state": "NSW",
+    "postcode": "2000",
+    "country": "Australia"
+  },
+  "price": 350,
+  "thumbnail": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800",
+  "metadata": {
+    "propertyType": "House",
+    "bathrooms": 3,
+    "bedrooms": [
+      {
+        "beds": 1,
+        "type": "King"
+      },
+      {
+        "beds": 2,
+        "type": "Queen"
+      },
+      {
+        "beds": 1,
+        "type": "Single"
+      }
+    ],
+    "amenities": [
+      "WiFi",
+      "Air Conditioning",
+      "Ocean View",
+      "Private Beach Access",
+      "BBQ Grill",
+      "Smart TV",
+      "Parking",
+      "Swimming Pool"
+    ]
+  }
+}
