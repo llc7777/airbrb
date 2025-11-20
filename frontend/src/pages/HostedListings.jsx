@@ -324,12 +324,7 @@ const HostedListings = () => {
                         reverse: true,
                       },
                     ]}
-                    yAxis={[
-                      {
-                        min: 0,
-                        max: 500,
-                      },
-                    ]}
+                    yAxis={[{}]}
                     series={[
                       {
                         data: chartData.yAxisData,

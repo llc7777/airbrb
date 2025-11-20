@@ -1,7 +1,17 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  Badge,
+} from "@mui/material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import { authAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
+import NotificationPanel from "./NotificationPanel";
 
 /**
  * NavigationBar Component
@@ -14,11 +24,21 @@ const NavigationBar = ({
 }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [notificationAnchor, setNotificationAnchor] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const handleLogout = async () => {
     await authAPI.logout();
     logout();
     navigate("/");
+  };
+
+  const handleNotificationClick = (event) => {
+    setNotificationAnchor(event.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchor(null);
   };
 
   return (
@@ -84,6 +104,30 @@ const NavigationBar = ({
         >
           🔍 All Listings
         </Button>
+        <Button
+          variant="contained"
+          onClick={handleNotificationClick}
+          sx={{
+            backgroundColor: "#ffc107",
+            color: "white",
+            mr: 2,
+            fontWeight: "bold",
+            minWidth: "auto",
+            padding: "6px 16px",
+            "&:hover": {
+              backgroundColor: "#ffb300",
+            },
+          }}
+        >
+          <Badge badgeContent={unreadCount} color="error">
+            <NotificationsIcon />
+          </Badge>
+        </Button>
+        <NotificationPanel
+          anchorEl={notificationAnchor}
+          onClose={handleNotificationClose}
+          onUnreadCountChange={setUnreadCount}
+        />
         <Button
           variant="contained"
           onClick={() => {
