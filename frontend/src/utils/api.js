@@ -129,6 +129,14 @@ export const bookingsAPI = {
       totalPrice,
     });
   },
+  // Accept booking request (auth required)
+  acceptBooking: (bookingId) => {
+    return authApi.put(`/bookings/accept/${bookingId}`);
+  },
+  // Decline booking request (auth required)
+  declineBooking: (bookingId) => {
+    return authApi.put(`/bookings/decline/${bookingId}`);
+  },
 };
 
 export default authApi;

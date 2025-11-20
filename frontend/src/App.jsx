@@ -7,6 +7,7 @@ import HostedListings from "./pages/HostedListings";
 import CreateListing from "./pages/CreateListing";
 import EditListing from "./pages/EditListing";
 import ViewListing from "./pages/ViewListing";
+import ManageBookings from "./pages/ManageBookings";
 
 const App = () => {
   return (
@@ -19,6 +20,10 @@ const App = () => {
       <Route path="/listings/new" element={<CreateListing />} />
       <Route path="/listings/:listingId" element={<ViewListing />} />
       <Route path="/listings/:listingId/edit" element={<EditListing />} />
+      <Route
+        path="/listings/:listingId/bookings"
+        element={<ManageBookings />}
+      />
     </Routes>
   );
 };

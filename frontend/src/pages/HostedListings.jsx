@@ -368,6 +368,17 @@ const HostedListings = () => {
 
                         <Button
                           variant="contained"
+                          color="info"
+                          fullWidth
+                          onClick={() =>
+                            navigate(`/listings/${listing.id}/bookings`)
+                          }
+                        >
+                          Manage Bookings
+                        </Button>
+
+                        <Button
+                          variant="contained"
                           fullWidth
                           onClick={() => handleEditListing(listing.id)}
                         >
