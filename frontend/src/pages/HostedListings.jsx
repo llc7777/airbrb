@@ -368,7 +368,7 @@ const HostedListings = () => {
                   >
                     <Box
                       sx={{
-                        height: 130,
+                        height: 240,
                         width: "100%",
                         overflow: "hidden",
                         display: "flex",
