@@ -151,6 +151,73 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
       onUnreadCountChange(0);
     }
   };
+
+  return (
+    <Menu
+      anchorEl={anchorEl}
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          maxHeight: 400,
+          width: 350,
+          mt: 1,
+        },
+      }}
+    >
+      <Box sx={{ px: 2, py: 1 }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          Notifications
+        </Typography>
+      </Box>
+      <Divider />
+
+      {notifications.length === 0 ? (
+        <MenuItem disabled>
+          <Typography variant="body2" color="text.secondary">
+            No notifications
+          </Typography>
+        </MenuItem>
+      ) : (
+        <>
+          {notifications.map((notification) => (
+            <MenuItem
+              key={notification.id}
+              sx={{
+                whiteSpace: "normal",
+                backgroundColor: notification.read
+                  ? "transparent"
+                  : "rgba(25, 118, 210, 0.08)",
+                "&:hover": {
+                  backgroundColor: notification.read
+                    ? "rgba(0, 0, 0, 0.04)"
+                    : "rgba(25, 118, 210, 0.12)",
+                },
+              }}
+              onClick={handleClose}
+            >
+              <Box>
+                <Typography variant="body2">{notification.message}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {notification.timestamp.toLocaleTimeString()}
+                </Typography>
+              </Box>
+            </MenuItem>
+          ))}
+          <Divider />
+          <Box sx={{ px: 2, py: 1, textAlign: "center" }}>
+            <Button
+              size="small"
+              onClick={handleClearAll}
+              sx={{ textTransform: "none" }}
+            >
+              Clear All
+            </Button>
+          </Box>
+        </>
+      )}
+    </Menu>
+  );
 };
 
 export default NotificationPanel;
