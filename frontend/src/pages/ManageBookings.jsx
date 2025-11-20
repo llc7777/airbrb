@@ -11,8 +11,6 @@ import {
   Chip,
   Stack,
   Divider,
-  AppBar,
-  Toolbar,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +21,7 @@ import {
 } from "@mui/material";
 import { listingsAPI, bookingsAPI } from "../utils/api";
 import NotificationSnackbar from "../components/NotificationSnackbar";
+import NavigationBar from "../components/NavigationBar";
 
 /**
  * ManageBookings Component
@@ -235,24 +234,7 @@ const ManageBookings = () => {
 
   return (
     <>
-      {/* App Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          <Box sx={{ flex: 1 }}>
-            <Button
-              color="inherit"
-              onClick={() => navigate("/hosted-listings")}
-            >
-              ← Back to Hosted Listings
-            </Button>
-          </Box>
-          <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
-            Manage Bookings: {listing.title}
-          </Typography>
-          <Box sx={{ flex: 1 }} />
-        </Toolbar>
-      </AppBar>
-
+      <NavigationBar title={`Manage Bookings: ${listing.title}`} />
       <Container sx={{ mt: 4, mb: 4 }}>
         {/* Listing Statistics */}
         <Card sx={{ mb: 4 }}>

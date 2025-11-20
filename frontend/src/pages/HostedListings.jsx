@@ -22,10 +22,11 @@ import {
   Paper,
 } from "@mui/material";
 import { LineChart } from "@mui/x-charts/LineChart";
-import { listingsAPI, bookingsAPI } from "../utils/api";
+import { listingsAPI, bookingsAPI, authAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import PublishDialog from "../components/PublishDialog";
 import NotificationSnackbar from "../components/NotificationSnackbar";
+import NavigationBar from "../components/NavigationBar";
 
 /**
  * HostedListings Component
@@ -304,59 +305,11 @@ const HostedListings = () => {
   return (
     <Box>
       {/* Navigation Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            My Hosted Listings
-          </Typography>
-          <Button
-            variant="outlined"
-            color="inherit"
-            onClick={() => navigate("/listings/new")}
-            sx={{
-              borderColor: "rgba(255, 255, 255, 0.5)",
-              mr: 2,
-              "&:hover": {
-                borderColor: "white",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            Create Your Listing
-          </Button>
-          <Button
-            variant="outlined"
-            color="inherit"
-            onClick={() => navigate("/")}
-            sx={{
-              borderColor: "rgba(255, 255, 255, 0.5)",
-              mr: 2,
-              "&:hover": {
-                borderColor: "white",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            All Listings
-          </Button>
-          <Button
-            variant="outlined"
-            color="inherit"
-            onClick={() => {
-              handleLogout();
-            }}
-            sx={{
-              borderColor: "rgba(255, 255, 255, 0.5)",
-              "&:hover": {
-                borderColor: "white",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <NavigationBar
+        title="My Hosted Listings"
+        showCreateButton={true}
+        hideMyHosting={true}
+      />
 
       {/* Main Content */}
       <Container sx={{ mt: 4, mb: 4 }}>
