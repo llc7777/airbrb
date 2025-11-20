@@ -366,28 +366,40 @@ const HostedListings = () => {
                       },
                     }}
                   >
-                    {listing.thumbnail?.includes("youtube.com/embed/") ? (
-                      <Box sx={{ height: 200, width: "100%" }}>
+                    <Box
+                      sx={{
+                        height: 130,
+                        width: "100%",
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#f5f5f5",
+                      }}
+                    >
+                      {listing.thumbnail?.includes("youtube.com/embed/") ? (
                         <iframe
                           width="100%"
                           height="100%"
                           src={listing.thumbnail}
                           title={listing.title}
-                          frameBorder="0"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                           style={{ border: 0 }}
                         />
-                      </Box>
-                    ) : (
-                      <CardMedia
-                        component="img"
-                        height="200"
-                        image={listing.thumbnail}
-                        alt={listing.title}
-                        sx={{ objectFit: "cover" }}
-                      />
-                    )}
+                      ) : listing.thumbnail ? (
+                        <Box
+                          component="img"
+                          src={listing.thumbnail}
+                          alt={listing.title}
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : null}
+                    </Box>
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Typography variant="h6" gutterBottom>
                         {listing.title}

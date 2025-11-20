@@ -770,8 +770,18 @@ const Landing = () => {
                     }}
                     onClick={() => handleViewListing(listing.id)}
                   >
-                    {listing.thumbnail?.includes("youtube.com/embed/") ? (
-                      <Box sx={{ height: 200, width: "100%" }}>
+                    <Box
+                      sx={{
+                        height: 130,
+                        width: "100%",
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#f5f5f5",
+                      }}
+                    >
+                      {listing.thumbnail?.includes("youtube.com/embed/") ? (
                         <iframe
                           width="100%"
                           height="100%"
@@ -782,16 +792,19 @@ const Landing = () => {
                           allowFullScreen
                           style={{ border: 0 }}
                         />
-                      </Box>
-                    ) : (
-                      <CardMedia
-                        component="img"
-                        height="200"
-                        image={listing.thumbnail}
-                        alt={listing.title}
-                        sx={{ objectFit: "cover" }}
-                      />
-                    )}
+                      ) : listing.thumbnail ? (
+                        <CardMedia
+                          component="img"
+                          image={listing.thumbnail}
+                          alt={listing.title}
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : null}
+                    </Box>
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Box
                         sx={{
