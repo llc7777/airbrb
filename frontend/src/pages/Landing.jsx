@@ -23,11 +23,14 @@ import {
   Collapse,
   IconButton,
   Badge,
+  Menu,
+  useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MenuIcon from "@mui/icons-material/Menu";
 import { listingsAPI, bookingsAPI, authAPI } from "../utils/api";
 import { useAuth } from "../hooks/useAuth";
 import NotificationPanel from "../components/NotificationPanel";
@@ -57,6 +60,10 @@ const Landing = () => {
   // Notification states
   const [notificationAnchor, setNotificationAnchor] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Mobile menu state
+  const isMobile = useMediaQuery("(max-width:800px)");
+  const [menuAnchor, setMenuAnchor] = useState(null);
 
   // Fetch all published listings
   useEffect(() => {
@@ -329,6 +336,22 @@ const Landing = () => {
   };
 
   /**
+   * Handle mobile menu
+   */
+  const handleMenuOpen = (event) => {
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const handleMenuItemClick = (action) => {
+    handleMenuClose();
+    action();
+  };
+
+  /**
    * Handle notification panel close
    */
   const handleNotificationClose = () => {
@@ -353,94 +376,116 @@ const Landing = () => {
           </Typography>
           {token ? (
             <>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/hosted-listings")}
-                sx={{
-                  backgroundColor: "#9c27b0",
-                  color: "white",
-                  mr: 2,
-                  fontWeight: "bold",
-                  "&:hover": {
-                    backgroundColor: "#7b1fa2",
-                  },
-                }}
-              >
-                🏠 My Hosting
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleNotificationClick}
-                sx={{
-                  backgroundColor: "#ffc107",
-                  color: "white",
-                  mr: 2,
-                  fontWeight: "bold",
-                  minWidth: "auto",
-                  padding: "6px 16px",
-                  "&:hover": {
-                    backgroundColor: "#ffb300",
-                  },
-                }}
-              >
-                <Badge badgeContent={unreadCount} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </Button>
-              <NotificationPanel
-                anchorEl={notificationAnchor}
-                onClose={handleNotificationClose}
-                onUnreadCountChange={setUnreadCount}
-              />
-              <Button
-                variant="contained"
-                onClick={() => {
-                  handleLogout();
-                }}
-                sx={{
-                  backgroundColor: "#f44336",
-                  color: "white",
-                  fontWeight: "bold",
-                  "&:hover": {
-                    backgroundColor: "#d32f2f",
-                  },
-                }}
-              >
-                🚺 Logout
-              </Button>
+              {isMobile ? (
+                <>
+                  <IconButton
+                    color="inherit"
+                    onClick={handleMenuOpen}
+                    sx={{ mr: 1 }}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={menuAnchor}
+                    open={Boolean(menuAnchor)}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() =>
+                        handleMenuItemClick(() => navigate("/hosted-listings"))
+                      }
+                    >
+                      🏠 My Hosting
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() =>
+                        handleMenuItemClick(handleNotificationClick)
+                      }
+                    >
+                      <Badge badgeContent={unreadCount} color="error">
+                        🔔 Notifications
+                      </Badge>
+                    </MenuItem>
+                    <MenuItem onClick={() => handleMenuItemClick(handleLogout)}>
+                      🚺 Logout
+                    </MenuItem>
+                  </Menu>
+                  <NotificationPanel
+                    anchorEl={notificationAnchor}
+                    onClose={handleNotificationClose}
+                    onUnreadCountChange={setUnreadCount}
+                  />
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate("/hosted-listings")}
+                    sx={{
+                      backgroundColor: "#9c27b0",
+                      color: "white",
+                      mr: 2,
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#7b1fa2",
+                      },
+                    }}
+                  >
+                    🏠 My Hosting
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleNotificationClick}
+                    sx={{
+                      backgroundColor: "#ffc107",
+                      color: "white",
+                      mr: 2,
+                      fontWeight: "bold",
+                      minWidth: "auto",
+                      padding: "6px 16px",
+                      "&:hover": {
+                        backgroundColor: "#ffb300",
+                      },
+                    }}
+                  >
+                    <Badge badgeContent={unreadCount} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </Button>
+                  <NotificationPanel
+                    anchorEl={notificationAnchor}
+                    onClose={handleNotificationClose}
+                    onUnreadCountChange={setUnreadCount}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      handleLogout();
+                    }}
+                    sx={{
+                      backgroundColor: "#f44336",
+                      color: "white",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#d32f2f",
+                      },
+                    }}
+                  >
+                    🚺 Logout
+                  </Button>
+                </>
+              )}
             </>
           ) : (
-            <>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/login")}
-                sx={{
-                  backgroundColor: "#00bcd4",
-                  color: "white",
-                  mr: 2,
-                  fontWeight: "bold",
-                  "&:hover": {
-                    backgroundColor: "#0097a7",
-                  },
-                }}
-              >
-                🔑 Login
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => navigate("/register")}
-                sx={{
-                  backgroundColor: "#4caf50",
-                  color: "white",
-                  fontWeight: "bold",
-                  "&:hover": {
-                    backgroundColor: "#45a049",
-                  },
-                }}
-              >
-                ✍️ Register
-              </Button>
-            </>
+            
           )}
         </Toolbar>
       </AppBar>
@@ -643,8 +688,8 @@ const Landing = () => {
                         getUserBookingStatus(listing.id) === "pending"
                           ? "rgba(255, 152, 0, 0.08)"
                           : getUserBookingStatus(listing.id) === "accepted"
-                            ? "rgba(76, 175, 80, 0.08)"
-                            : "background.paper",
+                          ? "rgba(76, 175, 80, 0.08)"
+                          : "background.paper",
                       "&:hover": {
                         transform: "translateY(-4px)",
                         boxShadow: 4,
@@ -740,22 +785,22 @@ const Landing = () => {
                         📅{" "}
                         {listing.availability && listing.availability.length > 0
                           ? `${listing.availability
-                            .slice(0, 1)
-                            .map(
-                              (range) =>
-                                `${new Date(range.start).toLocaleDateString(
-                                  "en-US",
-                                  { month: "numeric", day: "numeric" }
-                                )} ~ ${new Date(range.end).toLocaleDateString(
-                                  "en-US",
-                                  { month: "numeric", day: "numeric" }
-                                )}`
-                            )
-                            .join("")}${
-                            listing.availability.length > 1
-                              ? ` +${listing.availability.length - 1} more`
-                              : ""
-                          }`
+                              .slice(0, 1)
+                              .map(
+                                (range) =>
+                                  `${new Date(range.start).toLocaleDateString(
+                                    "en-US",
+                                    { month: "numeric", day: "numeric" }
+                                  )} ~ ${new Date(range.end).toLocaleDateString(
+                                    "en-US",
+                                    { month: "numeric", day: "numeric" }
+                                  )}`
+                              )
+                              .join("")}${
+                              listing.availability.length > 1
+                                ? ` +${listing.availability.length - 1} more`
+                                : ""
+                            }`
                           : "No dates available"}
                       </Typography>
 
