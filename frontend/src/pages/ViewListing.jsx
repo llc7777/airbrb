@@ -12,8 +12,6 @@ import {
   Chip,
   Paper,
   Divider,
-  AppBar,
-  Toolbar,
   ImageList,
   ImageListItem,
   Tooltip,
@@ -25,6 +23,7 @@ import BookingDialog from "../components/BookingDialog";
 import ReviewDialog from "../components/ReviewDialog";
 import NotificationSnackbar from "../components/NotificationSnackbar";
 import RatingFilterDialog from "../components/RatingFilterDialog";
+import NavigationBar from "../components/NavigationBar";
 
 /**
  * ViewListing Component
@@ -417,77 +416,11 @@ const ViewListing = () => {
   return (
     <Box>
       {/* Navigation Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          {token ? (
-            <>
-              <Button
-                variant="outlined"
-                color="inherit"
-                onClick={() => navigate("/hosted-listings")}
-                sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  mr: 2,
-                  "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                }}
-              >
-                My Hosting
-              </Button>
-              <Button
-                variant="outlined"
-                color="inherit"
-                onClick={() => {
-                  handleLogout();
-                }}
-                sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                }}
-              >
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="outlined"
-                color="inherit"
-                onClick={() => navigate("/login")}
-                sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  mr: 2,
-                  "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                }}
-              >
-                Login
-              </Button>
-              <Button
-                variant="outlined"
-                color="inherit"
-                onClick={() => navigate("/register")}
-                sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                }}
-              >
-                Register
-              </Button>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
+      {token ? (
+        <NavigationBar title={listing?.title || "Listing Details"} />
+      ) : (
+        <NavigationBar title={listing?.title || "Listing Details"} />
+      )}
 
       {/* Main Content */}
       <Container sx={{ mt: 4, mb: 4 }}>
