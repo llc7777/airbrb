@@ -208,7 +208,7 @@ const ViewListing = () => {
       (booking) =>
         booking.listingId === listingId &&
         booking.owner === userEmail &&
-        booking.status === "pending"
+        booking.status === "accepted"
     );
 
     return acceptedBooking?.id || null;

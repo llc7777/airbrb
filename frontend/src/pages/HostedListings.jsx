@@ -122,12 +122,12 @@ const HostedListings = () => {
     const profitByDay = new Array(31).fill(0); // Index 0 = today, 30 = 30 days ago
 
     // Get listing IDs owned by current user
-    const myListingIds = listings.map((listing) => listing.id);
+    const myListingIds = listings.map((listing) => String(listing.id));
 
     // Filter bookings for my listings that are accepted
     const acceptedBookings = bookings.filter(
       (booking) =>
-        myListingIds.includes(booking.listingId) &&
+        myListingIds.includes(String(booking.listingId)) &&
         booking.status === "accepted"
     );
 
@@ -136,6 +136,7 @@ const HostedListings = () => {
       const startDate = new Date(booking.dateRange.start);
       const endDate = new Date(booking.dateRange.end);
       const totalPrice = booking.totalPrice;
+      console.log(totalPrice);
 
       // Calculate number of nights
       const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
@@ -290,16 +291,6 @@ const HostedListings = () => {
     }
   };
 
-  /**
-   * Handle user logout
-   * Calls logout API and clears authentication state
-   */
-  const handleLogout = async () => {
-    await authAPI.logout();
-    logout();
-    navigate("/");
-  };
-
   return (
     <Box>
       {/* Navigation Bar */}
@@ -321,30 +312,35 @@ const HostedListings = () => {
               Total profit from all your listings for each day
             </Typography>
             <Box sx={{ width: "100%", height: 400 }}>
-              <LineChart
-                xAxis={[
-                  {
-                    data: getChartData().xAxisData,
-                    label: "Days Ago (0 = Today)",
-                    scaleType: "linear",
-                    reverse: true,
-                  },
-                ]}
-                yAxis={[
-                  {
-                    label: "$ Profit on that day",
-                  },
-                ]}
-                series={[
-                  {
-                    data: getChartData().yAxisData,
-                    label: "Profit ($)",
-                    color: "#1976d2",
-                    showMark: true,
-                  },
-                ]}
-                height={350}
-              />
+              {(() => {
+                const chartData = getChartData();
+                return (
+                  <LineChart
+                    xAxis={[
+                      {
+                        data: chartData.xAxisData,
+                        label: "Days Ago (0 = Today)",
+                        scaleType: "linear",
+                        reverse: true,
+                      },
+                    ]}
+                    yAxis={[
+                      {
+                        min: 0,
+                        max: 500,
+                      },
+                    ]}
+                    series={[
+                      {
+                        data: chartData.yAxisData,
+                        label: "Profit ($)",
+                        showMark: true,
+                      },
+                    ]}
+                    height={350}
+                  />
+                );
+              })()}
             </Box>
           </Paper>
         )}
