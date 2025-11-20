@@ -84,8 +84,9 @@ const Landing = () => {
         );
 
         // Filter only published listings (after fetching details)
+        // Also exclude listings owned by the current user
         const publishedListings = detailedListings.filter(
-          (listing) => listing.published === true
+          (listing) => listing.published === true && listing.owner !== userEmail
         );
 
         setAllListings(publishedListings);
@@ -96,7 +97,7 @@ const Landing = () => {
     };
 
     fetchPublishedListings();
-  }, []);
+  }, [userEmail]);
 
   // Fetch user's bookings when token and userEmail are available
   useEffect(() => {
