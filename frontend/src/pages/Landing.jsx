@@ -485,7 +485,79 @@ const Landing = () => {
               )}
             </>
           ) : (
-            
+            <>
+              {isMobile ? (
+                <>
+                  <IconButton
+                    color="inherit"
+                    onClick={handleMenuOpen}
+                    sx={{ mr: 1 }}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={menuAnchor}
+                    open={Boolean(menuAnchor)}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() =>
+                        handleMenuItemClick(() => navigate("/login"))
+                      }
+                    >
+                      🔑 Login
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() =>
+                        handleMenuItemClick(() => navigate("/register"))
+                      }
+                    >
+                      ✍️ Register
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate("/login")}
+                    sx={{
+                      backgroundColor: "#00bcd4",
+                      color: "white",
+                      mr: 2,
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#0097a7",
+                      },
+                    }}
+                  >
+                    🔑 Login
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate("/register")}
+                    sx={{
+                      backgroundColor: "#4caf50",
+                      color: "white",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#45a049",
+                      },
+                    }}
+                  >
+                    ✍️ Register
+                  </Button>
+                </>
+              )}
+            </>
           )}
         </Toolbar>
       </AppBar>
