@@ -7,7 +7,11 @@ import { useAuth } from "../context/AuthContext";
  * NavigationBar Component
  * Common navigation bar for authenticated pages
  */
-const NavigationBar = ({ title, showCreateButton = false, hideMyHosting = false }) => {
+const NavigationBar = ({
+  title,
+  showCreateButton = false,
+  hideMyHosting = false,
+}) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -20,73 +24,81 @@ const NavigationBar = ({ title, showCreateButton = false, hideMyHosting = false 
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            flexGrow: 1,
+            fontWeight: "bold",
+            fontSize: "1.3rem",
+            textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+          }}
+        >
           {title}
         </Typography>
         {showCreateButton && (
           <Button
-            variant="outlined"
-            color="inherit"
+            variant="contained"
             onClick={() => navigate("/listings/new")}
             sx={{
-              borderColor: "rgba(255, 255, 255, 0.5)",
+              backgroundColor: "#4caf50",
+              color: "white",
               mr: 2,
+              fontWeight: "bold",
               "&:hover": {
-                borderColor: "white",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                backgroundColor: "#45a049",
               },
             }}
           >
-          Create Your Listing
-        </Button>
+            ➥ Create Listing
+          </Button>
         )}
         {!hideMyHosting && (
-        <Button
-          variant="outlined"
-          color="inherit"
-          onClick={() => navigate("/hosted-listings")}
-          sx={{
-            borderColor: "rgba(255, 255, 255, 0.5)",
-            mr: 2,
-            "&:hover": {
-              borderColor: "white",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            },
-          }}
-        >
-          My Hosting
-        </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/hosted-listings")}
+            sx={{
+              backgroundColor: "#9c27b0",
+              color: "white",
+              mr: 2,
+              fontWeight: "bold",
+              "&:hover": {
+                backgroundColor: "#7b1fa2",
+              },
+            }}
+          >
+            🏠 My Hosting
+          </Button>
         )}
         <Button
-          variant="outlined"
-          color="inherit"
+          variant="contained"
           onClick={() => navigate("/")}
           sx={{
-            borderColor: "rgba(255, 255, 255, 0.5)",
+            backgroundColor: "#ff9800",
+            color: "white",
             mr: 2,
+            fontWeight: "bold",
             "&:hover": {
-              borderColor: "white",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backgroundColor: "#e68900",
             },
           }}
         >
-          All Listings
+          🔍 All Listings
         </Button>
         <Button
-          variant="outlined"
-          color="inherit"
+          variant="contained"
           onClick={() => {
             handleLogout();
           }}
           sx={{
-            borderColor: "rgba(255, 255, 255, 0.5)",
+            backgroundColor: "#f44336",
+            color: "white",
+            fontWeight: "bold",
             "&:hover": {
-              borderColor: "white",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backgroundColor: "#d32f2f",
             },
           }}
         >
-          Logout
+          🚺 Logout
         </Button>
       </Toolbar>
     </AppBar>

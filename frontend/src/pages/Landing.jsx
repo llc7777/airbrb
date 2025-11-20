@@ -318,73 +318,81 @@ const Landing = () => {
       {/* Navigation Bar */}
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              flexGrow: 1,
+              fontWeight: "bold",
+              fontSize: "1.3rem",
+              textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+            }}
+          >
             AirBrB - Find Your Perfect Stay
           </Typography>
           {token ? (
             <>
               <Button
-                variant="outlined"
-                color="inherit"
+                variant="contained"
                 onClick={() => navigate("/hosted-listings")}
                 sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  backgroundColor: "#9c27b0",
+                  color: "white",
                   mr: 2,
+                  fontWeight: "bold",
                   "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: "#7b1fa2",
                   },
                 }}
               >
-                My Hosting
+                🏠 My Hosting
               </Button>
               <Button
-                variant="outlined"
-                color="inherit"
+                variant="contained"
                 onClick={() => {
                   handleLogout();
                 }}
                 sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  fontWeight: "bold",
                   "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: "#d32f2f",
                   },
                 }}
               >
-                Logout
+                🚺 Logout
               </Button>
             </>
           ) : (
             <>
               <Button
-                variant="outlined"
-                color="inherit"
+                variant="contained"
                 onClick={() => navigate("/login")}
                 sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  backgroundColor: "#00bcd4",
+                  color: "white",
                   mr: 2,
+                  fontWeight: "bold",
                   "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: "#0097a7",
                   },
                 }}
               >
-                Login
+                🔑 Login
               </Button>
               <Button
-                variant="outlined"
-                color="inherit"
+                variant="contained"
                 onClick={() => navigate("/register")}
                 sx={{
-                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  backgroundColor: "#4caf50",
+                  color: "white",
+                  fontWeight: "bold",
                   "&:hover": {
-                    borderColor: "white",
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    backgroundColor: "#45a049",
                   },
                 }}
               >
-                Register
+                ✍️ Register
               </Button>
             </>
           )}
