@@ -20,8 +20,10 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { listingsAPI } from "../utils/api";
 import NavigationBar from "../components/NavigationBar";
+import NotificationSnackbar from "../components/NotificationSnackbar";
 
 /**
  * CreateListing Component
@@ -47,6 +49,11 @@ const CreateListing = () => {
   const [amenities, setAmenities] = useState([]);
   const [newAmenity, setNewAmenity] = useState("");
   const [error, setError] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   /**
    * Add a new bedroom field
@@ -89,6 +96,95 @@ const CreateListing = () => {
   };
 
   /**
+   * Handle JSON file upload
+   */
+  const handleJSONFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target.result);
+
+        // Validate JSON structure
+        if (
+          !jsonData.title ||
+          !jsonData.address ||
+          !jsonData.price ||
+          !jsonData.thumbnail ||
+          !jsonData.metadata
+        ) {
+          setSnackbar({
+            open: true,
+            message: "Invalid JSON format. Missing required fields.",
+            severity: "error",
+          });
+          return;
+        }
+
+        // Populate form fields from JSON
+        setTitle(jsonData.title || "");
+        setStreet(jsonData.address?.street || "");
+        setCity(jsonData.address?.city || "");
+        setState(jsonData.address?.state || "");
+        setPostcode(jsonData.address?.postcode || "");
+        setCountry(jsonData.address?.country || "");
+        setPrice(jsonData.price?.toString() || "");
+
+        // Handle thumbnail (image or YouTube)
+        if (jsonData.thumbnail?.includes("youtube.com/embed/")) {
+          setThumbnailType("youtube");
+          setYoutubeUrl(jsonData.thumbnail);
+          setThumbnail("");
+        } else {
+          setThumbnailType("image");
+          setThumbnail(jsonData.thumbnail || "");
+          setYoutubeUrl("");
+        }
+
+        setPropertyType(jsonData.metadata?.propertyType || "");
+        setBathrooms(jsonData.metadata?.bathrooms?.toString() || "");
+
+        // Handle bedrooms
+        if (
+          jsonData.metadata?.bedrooms &&
+          Array.isArray(jsonData.metadata.bedrooms)
+        ) {
+          setBedrooms(
+            jsonData.metadata.bedrooms.map((b) => ({
+              beds: b.beds?.toString() || "",
+              type: b.type || "",
+            }))
+          );
+        }
+
+        // Handle amenities
+        if (
+          jsonData.metadata?.amenities &&
+          Array.isArray(jsonData.metadata.amenities)
+        ) {
+          setAmenities(jsonData.metadata.amenities);
+        }
+
+        setError("");
+        setSnackbar({
+          open: true,
+          message: "Listing data loaded successfully from JSON!",
+          severity: "success",
+        });
+      } catch (err) {
+        setSnackbar({
+          open: true,
+          message: "Failed to parse JSON file. Please check the file format.",
+          severity: "error",
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  /**
    * Handle form submission
    */
   const handleSubmit = async (e) => {
@@ -124,9 +220,12 @@ const CreateListing = () => {
       if (thumbnailType === "youtube" && youtubeUrl) {
         // Validate that the URL is an embedded YouTube URL
         if (!youtubeUrl.includes("youtube.com/embed/")) {
-          setError(
-            "Please provide an embedded YouTube URL. Example: https://www.youtube.com/embed/VIDEO_ID"
-          );
+          setSnackbar({
+            open: true,
+            message:
+              "Please provide an embedded YouTube URL. Example: https://www.youtube.com/embed/VIDEO_ID",
+            severity: "error",
+          });
           return;
         }
         thumbnailData = youtubeUrl;
@@ -150,10 +249,13 @@ const CreateListing = () => {
       // Navigate back to hosted listings
       navigate("/hosted-listings");
     } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          "Failed to create listing. Please try again."
-      );
+      setSnackbar({
+        open: true,
+        message:
+          err.response?.data?.error ||
+          "Failed to create listing. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -175,6 +277,33 @@ const CreateListing = () => {
 
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={3}>
+                {/* JSON File Upload */}
+                <Paper elevation={1} sx={{ p: 2, bgcolor: "#f5f5f5" }}>
+                  <Typography variant="h6" gutterBottom>
+                    📁 Upload Listing Data (Optional)
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    You can upload a JSON file to auto-fill the form
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    component="label"
+                    startIcon={<UploadFileIcon />}
+                  >
+                    Upload JSON File
+                    <input
+                      type="file"
+                      accept=".json"
+                      hidden
+                      onChange={handleJSONFileUpload}
+                    />
+                  </Button>
+                </Paper>
+
                 {/* Title */}
                 <TextField
                   required
@@ -388,6 +517,14 @@ const CreateListing = () => {
           </Paper>
         </Box>
       </Container>
+
+      {/* Snackbar for notifications */}
+      <NotificationSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      />
     </Box>
   );
 };
