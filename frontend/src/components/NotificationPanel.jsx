@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Menu,
   MenuItem,
@@ -18,9 +18,99 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
   const { userEmail } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [lastCheckedBookings, setLastCheckedBookings] = useState(new Set());
+  const notifiedBookingIdsRef = useRef(new Set());
 
   const open = Boolean(anchorEl);
+
+  /**
+   * Load notified booking IDs and notifications from localStorage on mount
+   */
+  useEffect(() => {
+    if (!userEmail) return;
+
+    // Load notified booking IDs
+    const storedIds = localStorage.getItem(`notifiedBookings_${userEmail}`);
+    if (storedIds) {
+      try {
+        const parsed = JSON.parse(storedIds);
+        notifiedBookingIdsRef.current = new Set(parsed);
+      } catch (err) {
+        console.error("Failed to parse stored notification IDs:", err);
+      }
+    }
+
+    // Load active notifications
+    const storedNotifications = localStorage.getItem(
+      `notifications_${userEmail}`
+    );
+    if (storedNotifications) {
+      try {
+        const parsed = JSON.parse(storedNotifications);
+        // Convert timestamp strings back to Date objects
+        const notifications = parsed.map((n) => ({
+          ...n,
+          timestamp: new Date(n.timestamp),
+        }));
+        setNotifications(notifications);
+        setUnreadCount(notifications.length);
+        if (onUnreadCountChange) {
+          onUnreadCountChange(notifications.length);
+        }
+      } catch (err) {
+        console.error("Failed to parse stored notifications:", err);
+      }
+    }
+  }, [userEmail, onUnreadCountChange]);
+
+  /**
+   * Save notified booking IDs to localStorage
+   */
+  const saveNotifiedBookingIds = () => {
+    if (!userEmail) return;
+    const array = Array.from(notifiedBookingIdsRef.current);
+    localStorage.setItem(
+      `notifiedBookings_${userEmail}`,
+      JSON.stringify(array)
+    );
+  };
+
+  /**
+   * Save notifications to localStorage
+   */
+  const saveNotifications = (notifs) => {
+    if (!userEmail) return;
+    localStorage.setItem(`notifications_${userEmail}`, JSON.stringify(notifs));
+  };
+
+  /**
+   * Get background color based on notification type
+   */
+  const getNotificationColor = (notification) => {
+    if (notification.type === "booking-request") {
+      return "rgba(255, 193, 7, 0.15)"; // Yellow for guest requests
+    } else if (notification.type === "booking-status") {
+      if (notification.status === "accepted") {
+        return "rgba(76, 175, 80, 0.15)"; // Green for accepted
+      } else if (notification.status === "declined") {
+        return "rgba(244, 67, 54, 0.15)"; // Red for declined
+      }
+    }
+  };
+
+  /**
+   * Get hover background color based on notification type
+   */
+  const getNotificationHoverColor = (notification) => {
+    if (notification.type === "booking-request") {
+      return "rgba(255, 193, 7, 0.25)"; // Yellow hover
+    } else if (notification.type === "booking-status") {
+      if (notification.status === "accepted") {
+        return "rgba(76, 175, 80, 0.25)"; // Green hover
+      } else if (notification.status === "declined") {
+        return "rgba(244, 67, 54, 0.25)"; // Red hover
+      }
+    }
+  };
 
   /**
    * Poll for new notifications every 5 seconds
@@ -47,17 +137,18 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
 
         // Check for new booking requests on host's listings (Host notifications)
         allBookings.forEach((booking) => {
+          const notificationId = `booking-request-${booking.id}`;
           if (
             userListingIds.includes(String(booking.listingId)) &&
             booking.status === "pending" &&
-            !lastCheckedBookings.has(booking.id)
+            !notifiedBookingIdsRef.current.has(notificationId)
           ) {
             // Find listing title
             const listing = userListings.find(
               (l) => String(l.id) === String(booking.listingId)
             );
             newNotifications.push({
-              id: `booking-request-${booking.id}`,
+              id: notificationId,
               type: "booking-request",
               message: `New booking request for "${
                 listing?.title || "your listing"
@@ -71,10 +162,11 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
 
         // Check for booking status changes (Guest notifications)
         allBookings.forEach((booking) => {
+          const notificationId = `booking-status-${booking.id}-${booking.status}`;
           if (
             booking.owner === userEmail &&
             (booking.status === "accepted" || booking.status === "declined") &&
-            !lastCheckedBookings.has(booking.id)
+            !notifiedBookingIdsRef.current.has(notificationId)
           ) {
             // Find listing title
             const listingResponse = listingsResponse.data.listings.find(
@@ -83,7 +175,7 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
             const status =
               booking.status === "accepted" ? "accepted" : "declined";
             newNotifications.push({
-              id: `booking-status-${booking.id}`,
+              id: notificationId,
               type: "booking-status",
               message: `Your booking request for "${
                 listingResponse?.title || "a listing"
@@ -96,13 +188,21 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
           }
         });
 
-        // Update last checked bookings
-        const currentBookingIds = new Set(allBookings.map((b) => b.id));
-        setLastCheckedBookings(currentBookingIds);
-
         // Add new notifications to existing ones (prepend)
         if (newNotifications.length > 0) {
-          setNotifications((prev) => [...newNotifications, ...prev]);
+          // Update notified booking IDs
+          newNotifications.forEach((notif) => {
+            notifiedBookingIdsRef.current.add(notif.id);
+          });
+
+          // Save to localStorage
+          saveNotifiedBookingIds();
+
+          setNotifications((prev) => {
+            const updated = [...newNotifications, ...prev];
+            saveNotifications(updated);
+            return updated;
+          });
           setUnreadCount((prev) => {
             const newCount = prev + newNotifications.length;
             if (onUnreadCountChange) {
@@ -123,29 +223,35 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
     const interval = setInterval(pollNotifications, 5000);
 
     return () => clearInterval(interval);
-  }, [userEmail, lastCheckedBookings, onUnreadCountChange]);
+  }, [userEmail, onUnreadCountChange]);
 
   /**
-   * Handle opening notification menu
+   * Handle clicking on individual notification
    */
-  useEffect(() => {
-    if (open) {
-      // Mark all as read when opening
-      setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, read: true }))
-      );
-      setUnreadCount(0);
+  const handleNotificationClick = (notificationId) => {
+    // Remove the notification
+    setNotifications((prev) => {
+      const filtered = prev.filter((notif) => notif.id !== notificationId);
+      saveNotifications(filtered);
+      return filtered;
+    });
+
+    // Decrease unread count
+    setUnreadCount((prev) => {
+      const newCount = Math.max(0, prev - 1);
       if (onUnreadCountChange) {
-        onUnreadCountChange(0);
+        onUnreadCountChange(newCount);
       }
-    }
-  }, [open, onUnreadCountChange]);
+      return newCount;
+    });
+  };
 
   /**
    * Clear all notifications
    */
   const handleClearAll = () => {
     setNotifications([]);
+    saveNotifications([]);
     setUnreadCount(0);
     if (onUnreadCountChange) {
       onUnreadCountChange(0);
@@ -185,16 +291,15 @@ const NotificationPanel = ({ anchorEl, onClose, onUnreadCountChange }) => {
               key={notification.id}
               sx={{
                 whiteSpace: "normal",
-                backgroundColor: notification.read
-                  ? "transparent"
-                  : "rgba(25, 118, 210, 0.08)",
+                backgroundColor: getNotificationColor(notification),
                 "&:hover": {
-                  backgroundColor: notification.read
-                    ? "rgba(0, 0, 0, 0.04)"
-                    : "rgba(25, 118, 210, 0.12)",
+                  backgroundColor: getNotificationHoverColor(notification),
                 },
               }}
-              onClick={handleClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNotificationClick(notification.id);
+              }}
             >
               <Box>
                 <Typography variant="body2">{notification.message}</Typography>
