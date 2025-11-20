@@ -364,6 +364,52 @@ const ManageBookings = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Booking History */}
+        <Card>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              Booking History ({bookingHistory.length})
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            {bookingHistory.length === 0 ? (
+              <Typography color="text.secondary">No booking history</Typography>
+            ) : (
+              <TableContainer component={Paper} variant="outlined">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Guest Email</TableCell>
+                      <TableCell>Date Range</TableCell>
+                      <TableCell align="right">Total Price</TableCell>
+                      <TableCell align="center">Status</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {bookingHistory.map((booking) => (
+                      <TableRow key={booking.id}>
+                        <TableCell>{booking.owner}</TableCell>
+                        <TableCell>
+                          {formatDateRange(booking.dateRange)}
+                        </TableCell>
+                        <TableCell align="right">
+                          ${booking.totalPrice}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={booking.status}
+                            color={getStatusColor(booking.status)}
+                            size="small"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
       </Container>
 
       {/* Notification Snackbar */}
