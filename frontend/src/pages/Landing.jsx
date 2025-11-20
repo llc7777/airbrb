@@ -27,7 +27,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { listingsAPI, bookingsAPI } from "../utils/api";
+import { listingsAPI, bookingsAPI, authAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 /**
