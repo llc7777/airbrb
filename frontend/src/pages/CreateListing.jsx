@@ -48,7 +48,6 @@ const CreateListing = () => {
   const [bedrooms, setBedrooms] = useState([{ beds: "", type: "" }]);
   const [amenities, setAmenities] = useState([]);
   const [newAmenity, setNewAmenity] = useState("");
-  const [error, setError] = useState("");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -167,7 +166,6 @@ const CreateListing = () => {
           setAmenities(jsonData.metadata.amenities);
         }
 
-        setError("");
         setSnackbar({
           open: true,
           message: "Listing data loaded successfully from JSON!",
@@ -189,7 +187,6 @@ const CreateListing = () => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     // Calculate total beds
     const totalBeds = bedrooms.reduce((sum, bedroom) => {
@@ -268,12 +265,6 @@ const CreateListing = () => {
             <Typography variant="h4" gutterBottom>
               Create New Listing
             </Typography>
-
-            {error && (
-              <Typography color="error" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
-            )}
 
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={3}>

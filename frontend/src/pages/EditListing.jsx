@@ -22,6 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { listingsAPI } from "../utils/api";
 import NavigationBar from "../components/NavigationBar";
+import NotificationSnackbar from "../components/NotificationSnackbar";
 
 /**
  * EditListing Component
@@ -47,7 +48,11 @@ const EditListing = () => {
   const [bedrooms, setBedrooms] = useState([{ beds: "", type: "" }]);
   const [amenities, setAmenities] = useState([]);
   const [newAmenity, setNewAmenity] = useState("");
-  const [error, setError] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   // Fetch listing data on mount
   useEffect(() => {
@@ -93,7 +98,11 @@ const EditListing = () => {
           }
         }
       } catch (err) {
-        setError("Failed to load listing data. Please try again.");
+        setSnackbar({
+          open: true,
+          message: "Failed to load listing data. Please try again.",
+          severity: "error",
+        });
       }
     };
 
@@ -145,7 +154,6 @@ const EditListing = () => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     // Calculate total beds
     const totalBeds = bedrooms.reduce((sum, bedroom) => {
@@ -176,9 +184,12 @@ const EditListing = () => {
       if (thumbnailType === "youtube" && youtubeUrl) {
         // Validate that the URL is an embedded YouTube URL
         if (!youtubeUrl.includes("youtube.com/embed/")) {
-          setError(
-            "Please provide an embedded YouTube URL. Example: https://www.youtube.com/embed/VIDEO_ID"
-          );
+          setSnackbar({
+            open: true,
+            message:
+              "Please provide an embedded YouTube URL. Example: https://www.youtube.com/embed/VIDEO_ID",
+            severity: "error",
+          });
           return;
         }
         thumbnailData = youtubeUrl;
@@ -203,10 +214,13 @@ const EditListing = () => {
       // Navigate back to hosted listings
       navigate("/hosted-listings");
     } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          "Failed to update listing. Please try again."
-      );
+      setSnackbar({
+        open: true,
+        message:
+          err.response?.data?.error ||
+          "Failed to update listing. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -219,12 +233,6 @@ const EditListing = () => {
             <Typography variant="h4" gutterBottom>
               Edit Listing
             </Typography>
-
-            {error && (
-              <Typography color="error" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
-            )}
 
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={3}>
@@ -442,6 +450,14 @@ const EditListing = () => {
           </Paper>
         </Box>
       </Container>
+
+      {/* Snackbar for notifications */}
+      <NotificationSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      />
     </Box>
   );
 };

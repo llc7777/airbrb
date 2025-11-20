@@ -6,11 +6,11 @@ import {
   Container,
   TextField,
   Typography,
-  Alert,
   Paper,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../utils/api";
+import NotificationSnackbar from "../components/NotificationSnackbar";
 
 /**
  * Register Component
@@ -22,7 +22,11 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
-  const [error, setError] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   // Get login function from auth context
   const { login } = useAuth();
@@ -34,11 +38,14 @@ const Register = () => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     // Validate passwords match before submission
     if (password !== confirmPassword) {
-      setError("Passwords do not match. Please try again.");
+      setSnackbar({
+        open: true,
+        message: "Passwords do not match. Please try again.",
+        severity: "error",
+      });
       return;
     }
 
@@ -54,7 +61,11 @@ const Register = () => {
       // Display error message on failure
       const errorMessage =
         err.response?.data?.error || "Registration failed. Please try again.";
-      setError(errorMessage);
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
     }
   };
 
@@ -76,12 +87,6 @@ const Register = () => {
           <Typography component="h1" variant="h4" align="center" gutterBottom>
             Register
           </Typography>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
@@ -157,6 +162,14 @@ const Register = () => {
           </Box>
         </Paper>
       </Box>
+
+      {/* Snackbar for notifications */}
+      <NotificationSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      />
     </Container>
   );
 };

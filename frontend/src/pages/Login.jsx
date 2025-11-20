@@ -6,11 +6,11 @@ import {
   Container,
   TextField,
   Typography,
-  Alert,
   Paper,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../utils/api";
+import NotificationSnackbar from "../components/NotificationSnackbar";
 
 /**
  * Login Component
@@ -20,7 +20,11 @@ const Login = () => {
   // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   // Get login function from auth context
   const { login } = useAuth();
@@ -32,7 +36,6 @@ const Login = () => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
       // Call login API
@@ -47,7 +50,11 @@ const Login = () => {
       const errorMessage =
         err.response?.data?.error ||
         "Login failed. Please check your credentials.";
-      setError(errorMessage);
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
     }
   };
 
@@ -69,12 +76,6 @@ const Login = () => {
           <Typography component="h1" variant="h4" align="center" gutterBottom>
             Login
           </Typography>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
@@ -129,6 +130,14 @@ const Login = () => {
           </Box>
         </Paper>
       </Box>
+
+      {/* Snackbar for notifications */}
+      <NotificationSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      />
     </Container>
   );
 };

@@ -43,7 +43,7 @@ const HostedListings = () => {
     severity: "success",
   });
   const navigate = useNavigate();
-  const { userEmail, logout } = useAuth();
+  const { userEmail } = useAuth();
 
   /**
    * Fetch all listings owned by the current user
