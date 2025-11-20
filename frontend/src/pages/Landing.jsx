@@ -39,7 +39,7 @@ const Landing = () => {
   const [filteredListings, setFilteredListings] = useState([]);
   const [userBookings, setUserBookings] = useState([]);
   const navigate = useNavigate();
-  const { token, userEmail } = useAuth();
+  const { token, userEmail, logout } = useAuth();
 
   // Search and filter states
   const [searchText, setSearchText] = useState("");
@@ -304,6 +304,16 @@ const Landing = () => {
     });
   };
 
+  /**
+   * Handle user logout
+   * Calls logout API and clears authentication state
+   */
+  const handleLogout = async () => {
+    await authAPI.logout();
+    logout();
+    navigate("/");
+  };
+
   return (
     <Box>
       {/* Navigation Bar */}
@@ -317,7 +327,24 @@ const Landing = () => {
               <Button
                 variant="outlined"
                 color="inherit"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/hosted-listings")}
+                sx={{
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  mr: 2,
+                  "&:hover": {
+                    borderColor: "white",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
+                My Hosting
+              </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => {
+                  handleLogout();
+                }}
                 sx={{
                   borderColor: "rgba(255, 255, 255, 0.5)",
                   "&:hover": {
@@ -326,15 +353,38 @@ const Landing = () => {
                   },
                 }}
               >
-                My Dashboard
+                Logout
               </Button>
             </>
           ) : (
             <>
-              <Button color="inherit" onClick={() => navigate("/login")}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => navigate("/login")}
+                sx={{
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  mr: 2,
+                  "&:hover": {
+                    borderColor: "white",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
                 Login
               </Button>
-              <Button color="inherit" onClick={() => navigate("/register")}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => navigate("/register")}
+                sx={{
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                  "&:hover": {
+                    borderColor: "white",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
                 Register
               </Button>
             </>

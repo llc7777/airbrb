@@ -44,7 +44,7 @@ const HostedListings = () => {
     severity: "success",
   });
   const navigate = useNavigate();
-  const { userEmail } = useAuth();
+  const { userEmail, logout } = useAuth();
 
   /**
    * Fetch all listings owned by the current user
@@ -291,6 +291,16 @@ const HostedListings = () => {
     }
   };
 
+  /**
+   * Handle user logout
+   * Calls logout API and clears authentication state
+   */
+  const handleLogout = async () => {
+    await authAPI.logout();
+    logout();
+    navigate("/");
+  };
+
   return (
     <Box>
       {/* Navigation Bar */}
@@ -317,7 +327,24 @@ const HostedListings = () => {
           <Button
             variant="outlined"
             color="inherit"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/")}
+            sx={{
+              borderColor: "rgba(255, 255, 255, 0.5)",
+              mr: 2,
+              "&:hover": {
+                borderColor: "white",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
+            All Listings
+          </Button>
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={() => {
+              handleLogout();
+            }}
             sx={{
               borderColor: "rgba(255, 255, 255, 0.5)",
               "&:hover": {
@@ -326,7 +353,7 @@ const HostedListings = () => {
               },
             }}
           >
-            My Dashboard
+            Logout
           </Button>
         </Toolbar>
       </AppBar>

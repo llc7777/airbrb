@@ -40,8 +40,8 @@ const Login = () => {
       const { token } = response.data;
       // Store token and email using auth context
       login(token, email);
-      // Navigate to dashboard on success
-      navigate("/dashboard");
+      // Navigate to landing page on success
+      navigate("/");
     } catch (err) {
       // Display error message on failure
       const errorMessage =
@@ -61,6 +61,10 @@ const Login = () => {
           alignItems: "center",
         }}
       >
+        <Button onClick={() => navigate("/")} sx={{ mb: 2 }}>
+          ← Back to Main Page
+        </Button>
+
         <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>
           <Typography component="h1" variant="h4" align="center" gutterBottom>
             Login
