@@ -186,10 +186,17 @@ const ViewListing = () => {
   const getUserBookings = () => {
     if (!userEmail || !userBookings || userBookings.length === 0) return [];
 
-    return userBookings.filter(
+    const filteredBookings = userBookings.filter(
       (booking) =>
         booking.listingId === listingId && booking.owner === userEmail
     );
+
+    // Sort by start date (earliest first)
+    return filteredBookings.sort((a, b) => {
+      const dateA = new Date(a.dateRange?.start || 0);
+      const dateB = new Date(b.dateRange?.start || 0);
+      return dateA - dateB;
+    });
   };
 
   /**
@@ -347,6 +354,10 @@ const ViewListing = () => {
       // Refresh listing to show new booking
       const refreshResponse = await listingsAPI.getListingById(listingId);
       setListing(refreshResponse.data.listing);
+
+      // Refresh user bookings to update Your Booking(s) section
+      const bookingsResponse = await bookingsAPI.getAllBookings();
+      setUserBookings(bookingsResponse.data.bookings || []);
     } catch (err) {
       console.error("Failed to create booking:", err);
       setSnackbar({
@@ -565,7 +576,7 @@ const ViewListing = () => {
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {myBookings.map((booking, index) => (
-                  <Card key={index} variant="outlined">
+                  <Card key={booking.id} variant="outlined">
                     <CardContent>
                       <Box
                         sx={{

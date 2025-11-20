@@ -238,12 +238,18 @@ const ManageBookings = () => {
       {/* App Bar */}
       <AppBar position="static">
         <Toolbar>
-          <Button color="inherit" onClick={() => navigate("/dashboard")}>
-            ← Back to Dashboard
-          </Button>
-          <Typography variant="h6" sx={{ flexGrow: 1, ml: 2 }}>
+          <Box sx={{ flex: 1 }}>
+            <Button
+              color="inherit"
+              onClick={() => navigate("/hosted-listings")}
+            >
+              ← Back to Hosted Listings
+            </Button>
+          </Box>
+          <Typography variant="h6" sx={{ flex: 1, textAlign: "center" }}>
             Manage Bookings: {listing.title}
           </Typography>
+          <Box sx={{ flex: 1 }} />
         </Toolbar>
       </AppBar>
 
