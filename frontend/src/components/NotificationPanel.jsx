@@ -8,7 +8,7 @@ import {
   Button,
 } from "@mui/material";
 import { bookingsAPI, listingsAPI } from "../utils/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 /**
  * NotificationPanel Component

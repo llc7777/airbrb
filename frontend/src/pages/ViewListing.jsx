@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { listingsAPI, bookingsAPI } from "../utils/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import BookingDialog from "../components/BookingDialog";
 import ReviewDialog from "../components/ReviewDialog";
 import NotificationSnackbar from "../components/NotificationSnackbar";
@@ -226,14 +226,14 @@ const ViewListing = () => {
    */
   const getStatusColor = (status) => {
     switch (status) {
-    case "accepted":
-      return "success";
-    case "pending":
-      return "warning";
-    case "declined":
-      return "error";
-    default:
-      return "default";
+      case "accepted":
+        return "success";
+      case "pending":
+        return "warning";
+      case "declined":
+        return "error";
+      default:
+        return "default";
     }
   };
 
@@ -517,10 +517,10 @@ const ViewListing = () => {
             📍{" "}
             {listing.address
               ? `${listing.address.street || ""}, ${
-                listing.address.city || ""
-              }, ${listing.address.state || ""} ${
-                listing.address.postcode || ""
-              }`.trim()
+                  listing.address.city || ""
+                }, ${listing.address.state || ""} ${
+                  listing.address.postcode || ""
+                }`.trim()
               : "Address not available"}
           </Typography>
 
@@ -575,18 +575,18 @@ const ViewListing = () => {
           {/* Amenities */}
           {listing.metadata?.amenities &&
             listing.metadata.amenities.length > 0 && (
-            <>
-              <Typography variant="h6" gutterBottom>
+              <>
+                <Typography variant="h6" gutterBottom>
                   Amenities
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {listing.metadata.amenities.map((amenity, index) => (
-                  <Chip key={index} label={amenity} variant="outlined" />
-                ))}
-              </Box>
-              <Divider sx={{ my: 2 }} />
-            </>
-          )}
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {listing.metadata.amenities.map((amenity, index) => (
+                    <Chip key={index} label={amenity} variant="outlined" />
+                  ))}
+                </Box>
+                <Divider sx={{ my: 2 }} />
+              </>
+            )}
 
           {/* User's Bookings */}
           {token && myBookings.length > 0 && (

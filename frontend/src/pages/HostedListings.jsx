@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { listingsAPI, bookingsAPI } from "../utils/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import PublishDialog from "../components/PublishDialog";
 import NotificationSnackbar from "../components/NotificationSnackbar";
 import NavigationBar from "../components/NavigationBar";

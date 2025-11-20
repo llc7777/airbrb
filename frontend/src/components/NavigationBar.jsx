@@ -15,7 +15,7 @@ import {
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuIcon from "@mui/icons-material/Menu";
 import { authAPI } from "../utils/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import NotificationPanel from "./NotificationPanel";
 
 /**

@@ -1,13 +1,11 @@
-import { createContext, useState, useContext } from "react";
-
-// Create authentication context for global state management
-const AuthContext = createContext(null);
+import { useState, useEffect } from "react";
 
 /**
- * AuthProvider Component
- * Provides authentication state to entire application
+ * useAuth Hook
+ * Custom hook for authentication state management
+ * Manages token and user email in localStorage
  */
-export const AuthProvider = ({ children }) => {
+export const useAuth = () => {
   // Initialize token from localStorage (persists login state on refresh)
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token") || null;
@@ -18,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem("userEmail") || null;
   });
 
-  // Login: Store token and email in localStorage and context
+  // Login: Store token and email in localStorage and state
   const login = (newToken, email) => {
     setToken(newToken);
     localStorage.setItem("token", newToken);
@@ -34,27 +32,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userEmail");
   };
 
-  // Context value to be provided
-  const value = {
+  // Return authentication state and methods
+  return {
     token, // Current authentication token
     userEmail, // Current user's email
     login, // Login function
     logout, // Logout function
     isAuthenticated: !!token, // Boolean indicating if user is authenticated
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-/**
- * useAuth Hook
- * Custom hook to access authentication context
- * @throws Error if used outside AuthProvider
- */
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };
