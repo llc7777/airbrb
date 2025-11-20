@@ -7,8 +7,14 @@ import {
   Button,
   IconButton,
   Badge,
+  Menu,
+  MenuItem,
+  Box,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MenuIcon from "@mui/icons-material/Menu";
 import { authAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import NotificationPanel from "./NotificationPanel";
@@ -26,6 +32,9 @@ const NavigationBar = ({
   const { token, logout } = useAuth();
   const [notificationAnchor, setNotificationAnchor] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width:800px)");
 
   const handleLogout = async () => {
     await authAPI.logout();
@@ -39,6 +48,19 @@ const NavigationBar = ({
 
   const handleNotificationClose = () => {
     setNotificationAnchor(null);
+  };
+
+  const handleMenuOpen = (event) => {
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const handleMenuItemClick = (path) => {
+    navigate(path);
+    handleMenuClose();
   };
 
   return (
@@ -55,98 +77,148 @@ const NavigationBar = ({
         >
           {title}
         </Typography>
-        {token && showCreateButton && (
-          <Button
-            variant="contained"
-            onClick={() => navigate("/listings/new")}
-            sx={{
-              backgroundColor: "#4caf50",
-              color: "white",
-              mr: 2,
-              fontWeight: "bold",
-              "&:hover": {
-                backgroundColor: "#45a049",
-              },
-            }}
-          >
-            ➥ Create Listing
-          </Button>
-        )}
-        {token && !hideMyHosting && (
-          <Button
-            variant="contained"
-            onClick={() => navigate("/hosted-listings")}
-            sx={{
-              backgroundColor: "#9c27b0",
-              color: "white",
-              mr: 2,
-              fontWeight: "bold",
-              "&:hover": {
-                backgroundColor: "#7b1fa2",
-              },
-            }}
-          >
-            🏠 My Hosting
-          </Button>
-        )}
-        <Button
-          variant="contained"
-          onClick={() => navigate("/")}
-          sx={{
-            backgroundColor: "#ff9800",
-            color: "white",
-            mr: 2,
-            fontWeight: "bold",
-            "&:hover": {
-              backgroundColor: "#e68900",
-            },
-          }}
-        >
-          🔍 All Listings
-        </Button>
-        {token && (
+
+        {isMobile ? (
           <>
+            <IconButton color="inherit" onClick={handleMenuOpen} edge="end">
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              anchorEl={menuAnchor}
+              open={Boolean(menuAnchor)}
+              onClose={handleMenuClose}
+            >
+              {token && showCreateButton && (
+                <MenuItem onClick={() => handleMenuItemClick("/listings/new")}>
+                  ➥ Create Listing
+                </MenuItem>
+              )}
+              {token && !hideMyHosting && (
+                <MenuItem
+                  onClick={() => handleMenuItemClick("/hosted-listings")}
+                >
+                  🏠 My Hosting
+                </MenuItem>
+              )}
+              <MenuItem onClick={() => handleMenuItemClick("/")}>
+                🔍 All Listings
+              </MenuItem>
+              {token && (
+                <MenuItem onClick={handleNotificationClick}>
+                  🔔 Notifications {unreadCount > 0 && `(${unreadCount})`}
+                </MenuItem>
+              )}
+              {token && (
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    handleLogout();
+                  }}
+                >
+                  🚺 Logout
+                </MenuItem>
+              )}
+            </Menu>
+          </>
+        ) : (
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {token && showCreateButton && (
+              <Button
+                variant="contained"
+                onClick={() => navigate("/listings/new")}
+                sx={{
+                  backgroundColor: "#4caf50",
+                  color: "white",
+                  mr: 2,
+                  fontWeight: "bold",
+                  "&:hover": {
+                    backgroundColor: "#45a049",
+                  },
+                }}
+              >
+                ➥ Create Listing
+              </Button>
+            )}
+            {token && !hideMyHosting && (
+              <Button
+                variant="contained"
+                onClick={() => navigate("/hosted-listings")}
+                sx={{
+                  backgroundColor: "#9c27b0",
+                  color: "white",
+                  mr: 2,
+                  fontWeight: "bold",
+                  "&:hover": {
+                    backgroundColor: "#7b1fa2",
+                  },
+                }}
+              >
+                🏠 My Hosting
+              </Button>
+            )}
             <Button
               variant="contained"
-              onClick={handleNotificationClick}
+              onClick={() => navigate("/")}
               sx={{
-                backgroundColor: "#ffc107",
+                backgroundColor: "#ff9800",
                 color: "white",
                 mr: 2,
                 fontWeight: "bold",
-                minWidth: "auto",
-                padding: "6px 16px",
                 "&:hover": {
-                  backgroundColor: "#ffb300",
+                  backgroundColor: "#e68900",
                 },
               }}
             >
-              <Badge badgeContent={unreadCount} color="error">
-                <NotificationsIcon />
-              </Badge>
+              🔍 All Listings
             </Button>
-            <NotificationPanel
-              anchorEl={notificationAnchor}
-              onClose={handleNotificationClose}
-              onUnreadCountChange={setUnreadCount}
-            />
-            <Button
-              variant="contained"
-              onClick={() => {
-                handleLogout();
-              }}
-              sx={{
-                backgroundColor: "#f44336",
-                color: "white",
-                fontWeight: "bold",
-                "&:hover": {
-                  backgroundColor: "#d32f2f",
-                },
-              }}
-            >
-              🚺 Logout
-            </Button>
-          </>
+            {token && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={handleNotificationClick}
+                  sx={{
+                    backgroundColor: "#ffc107",
+                    color: "white",
+                    mr: 2,
+                    fontWeight: "bold",
+                    minWidth: "auto",
+                    padding: "6px 16px",
+                    "&:hover": {
+                      backgroundColor: "#ffb300",
+                    },
+                  }}
+                >
+                  <Badge badgeContent={unreadCount} color="error">
+                    <NotificationsIcon />
+                  </Badge>
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleLogout();
+                  }}
+                  sx={{
+                    backgroundColor: "#f44336",
+                    color: "white",
+                    fontWeight: "bold",
+                    "&:hover": {
+                      backgroundColor: "#d32f2f",
+                    },
+                  }}
+                >
+                  🚺 Logout
+                </Button>
+              </>
+            )}
+          </Box>
+        )}
+
+        {token && (
+          <NotificationPanel
+            anchorEl={notificationAnchor}
+            onClose={handleNotificationClose}
+            onUnreadCountChange={setUnreadCount}
+          />
         )}
       </Toolbar>
     </AppBar>
