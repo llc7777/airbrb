@@ -22,12 +22,15 @@ import {
   InputLabel,
   Collapse,
   IconButton,
+  Badge,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import { listingsAPI, bookingsAPI, authAPI } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
+import NotificationPanel from "../components/NotificationPanel";
 
 /**
  * Landing Component
@@ -50,6 +53,10 @@ const Landing = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sortByRating, setSortByRating] = useState(""); // "asc" or "desc"
+
+  // Notification states
+  const [notificationAnchor, setNotificationAnchor] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Fetch all published listings
   useEffect(() => {
@@ -313,6 +320,20 @@ const Landing = () => {
     navigate("/");
   };
 
+  /**
+   * Handle notification button click
+   */
+  const handleNotificationClick = (event) => {
+    setNotificationAnchor(event.currentTarget);
+  };
+
+  /**
+   * Handle notification panel close
+   */
+  const handleNotificationClose = () => {
+    setNotificationAnchor(null);
+  };
+
   return (
     <Box>
       {/* Navigation Bar */}
@@ -346,6 +367,30 @@ const Landing = () => {
               >
                 🏠 My Hosting
               </Button>
+              <Button
+                variant="contained"
+                onClick={handleNotificationClick}
+                sx={{
+                  backgroundColor: "#ffc107",
+                  color: "white",
+                  mr: 2,
+                  fontWeight: "bold",
+                  minWidth: "auto",
+                  padding: "6px 16px",
+                  "&:hover": {
+                    backgroundColor: "#ffb300",
+                  },
+                }}
+              >
+                <Badge badgeContent={unreadCount} color="error">
+                  <NotificationsIcon />
+                </Badge>
+              </Button>
+              <NotificationPanel
+                anchorEl={notificationAnchor}
+                onClose={handleNotificationClose}
+                onUnreadCountChange={setUnreadCount}
+              />
               <Button
                 variant="contained"
                 onClick={() => {

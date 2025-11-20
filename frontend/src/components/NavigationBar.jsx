@@ -23,7 +23,7 @@ const NavigationBar = ({
   hideMyHosting = false,
 }) => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { token, logout } = useAuth();
   const [notificationAnchor, setNotificationAnchor] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -55,7 +55,7 @@ const NavigationBar = ({
         >
           {title}
         </Typography>
-        {showCreateButton && (
+        {token && showCreateButton && (
           <Button
             variant="contained"
             onClick={() => navigate("/listings/new")}
@@ -72,7 +72,7 @@ const NavigationBar = ({
             ➥ Create Listing
           </Button>
         )}
-        {!hideMyHosting && (
+        {token && !hideMyHosting && (
           <Button
             variant="contained"
             onClick={() => navigate("/hosted-listings")}
@@ -104,46 +104,50 @@ const NavigationBar = ({
         >
           🔍 All Listings
         </Button>
-        <Button
-          variant="contained"
-          onClick={handleNotificationClick}
-          sx={{
-            backgroundColor: "#ffc107",
-            color: "white",
-            mr: 2,
-            fontWeight: "bold",
-            minWidth: "auto",
-            padding: "6px 16px",
-            "&:hover": {
-              backgroundColor: "#ffb300",
-            },
-          }}
-        >
-          <Badge badgeContent={unreadCount} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </Button>
-        <NotificationPanel
-          anchorEl={notificationAnchor}
-          onClose={handleNotificationClose}
-          onUnreadCountChange={setUnreadCount}
-        />
-        <Button
-          variant="contained"
-          onClick={() => {
-            handleLogout();
-          }}
-          sx={{
-            backgroundColor: "#f44336",
-            color: "white",
-            fontWeight: "bold",
-            "&:hover": {
-              backgroundColor: "#d32f2f",
-            },
-          }}
-        >
-          🚺 Logout
-        </Button>
+        {token && (
+          <>
+            <Button
+              variant="contained"
+              onClick={handleNotificationClick}
+              sx={{
+                backgroundColor: "#ffc107",
+                color: "white",
+                mr: 2,
+                fontWeight: "bold",
+                minWidth: "auto",
+                padding: "6px 16px",
+                "&:hover": {
+                  backgroundColor: "#ffb300",
+                },
+              }}
+            >
+              <Badge badgeContent={unreadCount} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </Button>
+            <NotificationPanel
+              anchorEl={notificationAnchor}
+              onClose={handleNotificationClose}
+              onUnreadCountChange={setUnreadCount}
+            />
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleLogout();
+              }}
+              sx={{
+                backgroundColor: "#f44336",
+                color: "white",
+                fontWeight: "bold",
+                "&:hover": {
+                  backgroundColor: "#d32f2f",
+                },
+              }}
+            >
+              🚺 Logout
+            </Button>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

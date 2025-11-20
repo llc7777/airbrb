@@ -187,7 +187,8 @@ const ViewListing = () => {
 
     const filteredBookings = userBookings.filter(
       (booking) =>
-        booking.listingId === listingId && booking.owner === userEmail
+        String(booking.listingId) === String(listingId) &&
+        booking.owner === userEmail
     );
 
     // Sort by start date (earliest first)
@@ -206,7 +207,7 @@ const ViewListing = () => {
 
     const acceptedBooking = userBookings.find(
       (booking) =>
-        booking.listingId === listingId &&
+        String(booking.listingId) === String(listingId) &&
         booking.owner === userEmail &&
         booking.status === "accepted"
     );
@@ -402,16 +403,6 @@ const ViewListing = () => {
     listing.thumbnail,
     ...(listing.metadata?.propertyImages || []),
   ].filter(Boolean);
-
-  /**
-   * Handle user logout
-   * Calls logout API and clears authentication state
-   */
-  const handleLogout = async () => {
-    await authAPI.logout();
-    logout();
-    navigate("/");
-  };
 
   return (
     <Box>
