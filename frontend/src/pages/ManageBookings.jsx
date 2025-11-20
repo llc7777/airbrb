@@ -203,14 +203,14 @@ const ManageBookings = () => {
    */
   const getStatusColor = (status) => {
     switch (status) {
-      case "accepted":
-        return "success";
-      case "declined":
-        return "error";
-      case "pending":
-        return "warning";
-      default:
-        return "default";
+    case "accepted":
+      return "success";
+    case "declined":
+      return "error";
+    case "pending":
+      return "warning";
+    default:
+      return "default";
     }
   };
 

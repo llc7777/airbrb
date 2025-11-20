@@ -52,8 +52,8 @@ const RatingFilterDialog = ({
       <DialogTitle>
         {selectedRating
           ? `${selectedRating} Star Reviews (${
-              getReviewsByRating(selectedRating).length
-            })`
+            getReviewsByRating(selectedRating).length
+          })`
           : "Rating Breakdown"}
       </DialogTitle>
       <DialogContent>
