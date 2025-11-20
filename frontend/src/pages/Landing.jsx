@@ -20,7 +20,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Slider,
   Collapse,
   IconButton,
 } from "@mui/material";

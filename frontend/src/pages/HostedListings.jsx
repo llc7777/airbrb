@@ -17,8 +17,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  AppBar,
-  Toolbar,
   Paper,
 } from "@mui/material";
 import { LineChart } from "@mui/x-charts/LineChart";
