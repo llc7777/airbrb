@@ -97,7 +97,7 @@ const Landing = () => {
     };
 
     fetchPublishedListings();
-  }, [userEmail]);
+  }, []);
 
   // Fetch user's bookings when token and userEmail are available
   useEffect(() => {

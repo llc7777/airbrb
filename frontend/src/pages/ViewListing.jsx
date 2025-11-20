@@ -15,6 +15,11 @@ import {
   ImageList,
   ImageListItem,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { listingsAPI, bookingsAPI } from "../utils/api";
@@ -46,6 +51,8 @@ const ViewListing = () => {
   // Booking states
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -301,6 +308,54 @@ const ViewListing = () => {
         message:
           err.response?.data?.error ||
           "Failed to submit review. Please try again.",
+        severity: "error",
+      });
+    }
+  };
+
+  /**
+   * Open cancel booking dialog
+   */
+  const handleCancelBooking = (booking) => {
+    setBookingToCancel(booking);
+    setCancelDialogOpen(true);
+  };
+
+  /**
+   * Close cancel booking dialog
+   */
+  const handleCloseCancelDialog = () => {
+    setCancelDialogOpen(false);
+    setBookingToCancel(null);
+  };
+
+  /**
+   * Confirm cancel booking
+   */
+  const handleConfirmCancel = async () => {
+    if (!bookingToCancel) return;
+
+    try {
+      await bookingsAPI.deleteBooking(bookingToCancel.id);
+
+      handleCloseCancelDialog();
+
+      setSnackbar({
+        open: true,
+        message: "Booking cancelled successfully",
+        severity: "success",
+      });
+
+      // Refresh user bookings to update Your Booking(s) section
+      const response = await bookingsAPI.getAllBookings();
+      setUserBookings(response.data.bookings || []);
+    } catch (err) {
+      console.error("Failed to cancel booking:", err);
+      setSnackbar({
+        open: true,
+        message:
+          err.response?.data?.error ||
+          "Failed to cancel booking. Please try again.",
         severity: "error",
       });
     }
@@ -567,6 +622,20 @@ const ViewListing = () => {
                       <Typography variant="body2" color="text.secondary">
                         Total: ${booking.totalPrice}
                       </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          fullWidth
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancelBooking(booking);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Box>
                     </CardContent>
                   </Card>
                 ))}
@@ -713,6 +782,23 @@ const ViewListing = () => {
         onSubmit={handleSubmitReview}
         listingTitle={listing.title}
       />
+
+      {/* Cancel Booking Confirmation Dialog */}
+      <Dialog open={cancelDialogOpen} onClose={handleCloseCancelDialog}>
+        <DialogTitle>Cancel Booking</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to cancel this booking? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseCancelDialog}>Cancel</Button>
+          <Button onClick={handleConfirmCancel} color="error" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Rating Filter Dialog */}
       <RatingFilterDialog

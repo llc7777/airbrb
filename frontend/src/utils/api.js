@@ -137,6 +137,10 @@ export const bookingsAPI = {
   declineBooking: (bookingId) => {
     return authApi.put(`/bookings/decline/${bookingId}`);
   },
+  // Delete/cancel booking (auth required)
+  deleteBooking: (bookingId) => {
+    return authApi.delete(`/bookings/${bookingId}`);
+  },
 };
 
 export default authApi;
