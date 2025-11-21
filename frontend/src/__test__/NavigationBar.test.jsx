@@ -165,4 +165,81 @@ describe("NavigationBar Component", () => {
       screen.getByRole("button", { name: /create listing/i })
     ).toBeInTheDocument();
   });
+
+  /**
+   * Test 6: Create Listing button navigates correctly
+   */
+  it("navigates to create listing page when Create Listing button is clicked", async () => {
+    useAuth.mockReturnValue({
+      token: "fake-token",
+      userEmail: "test@example.com",
+      logout: vi.fn(),
+    });
+
+    render(
+      <BrowserRouter>
+        <NavigationBar title="My Hosting" showCreateButton={true} />
+      </BrowserRouter>
+    );
+
+    const createButton = screen.getByRole("button", {
+      name: /create listing/i,
+    });
+    await fireEvent.click(createButton);
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith("/listings/new");
+    });
+  });
+
+  /**
+   * Test 7: My Hosting button is hidden when hideMyHosting is true
+   */
+  it("hides My Hosting button when hideMyHosting prop is true", () => {
+    useAuth.mockReturnValue({
+      token: "fake-token",
+      userEmail: "test@example.com",
+      logout: vi.fn(),
+    });
+
+    render(
+      <BrowserRouter>
+        <NavigationBar title="AirBrB" hideMyHosting={true} />
+      </BrowserRouter>
+    );
+
+    // Check that My Hosting button is NOT visible
+    expect(
+      screen.queryByRole("button", { name: /my hosting/i })
+    ).not.toBeInTheDocument();
+
+    // But logout should still be visible
+    expect(screen.getByRole("button", { name: /logout/i })).toBeInTheDocument();
+  });
+
+  /**
+   * Test 8: All Listings button navigates to home page
+   */
+  it("navigates to home page when All Listings button is clicked", async () => {
+    useAuth.mockReturnValue({
+      token: "fake-token",
+      userEmail: "test@example.com",
+      logout: vi.fn(),
+    });
+
+    render(
+      <BrowserRouter>
+        <NavigationBar title="AirBrB" />
+      </BrowserRouter>
+    );
+
+    const allListingsButton = screen.getByRole("button", {
+      name: /all listings/i,
+    });
+    await fireEvent.click(allListingsButton);
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith("/");
+    });
+  });
 });
