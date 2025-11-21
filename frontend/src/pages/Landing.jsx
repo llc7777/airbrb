@@ -760,8 +760,8 @@ const Landing = () => {
                         getUserBookingStatus(listing.id) === "pending"
                           ? "rgba(255, 152, 0, 0.08)"
                           : getUserBookingStatus(listing.id) === "accepted"
-                          ? "rgba(76, 175, 80, 0.08)"
-                          : "background.paper",
+                            ? "rgba(76, 175, 80, 0.08)"
+                            : "background.paper",
                       "&:hover": {
                         transform: "translateY(-4px)",
                         boxShadow: 4,
@@ -870,22 +870,22 @@ const Landing = () => {
                         📅{" "}
                         {listing.availability && listing.availability.length > 0
                           ? `${listing.availability
-                              .slice(0, 1)
-                              .map(
-                                (range) =>
-                                  `${new Date(range.start).toLocaleDateString(
-                                    "en-US",
-                                    { month: "numeric", day: "numeric" }
-                                  )} ~ ${new Date(range.end).toLocaleDateString(
-                                    "en-US",
-                                    { month: "numeric", day: "numeric" }
-                                  )}`
-                              )
-                              .join("")}${
-                              listing.availability.length > 1
-                                ? ` +${listing.availability.length - 1} more`
-                                : ""
-                            }`
+                            .slice(0, 1)
+                            .map(
+                              (range) =>
+                                `${new Date(range.start).toLocaleDateString(
+                                  "en-US",
+                                  { month: "numeric", day: "numeric" }
+                                )} ~ ${new Date(range.end).toLocaleDateString(
+                                  "en-US",
+                                  { month: "numeric", day: "numeric" }
+                                )}`
+                            )
+                            .join("")}${
+                            listing.availability.length > 1
+                              ? ` +${listing.availability.length - 1} more`
+                              : ""
+                          }`
                           : "No dates available"}
                       </Typography>
 
