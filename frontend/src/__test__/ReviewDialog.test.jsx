@@ -143,7 +143,8 @@ describe("ReviewDialog Component", () => {
 
     // Should have 5 radio buttons for rating (1-5 stars)
     const ratingButtons = screen.getAllByRole("radio");
-    expect(ratingButtons).toHaveLength(5);
+    // MUI Rating has hidden radio for 0, so total length is 6
+    expect(ratingButtons).toHaveLength(6);
   });
 
   // Test 11: Comment field is multiline
