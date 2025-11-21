@@ -338,20 +338,17 @@ describe("Happy Path - Admin User Flow", () => {
       { timeout: 5000 }
     );
 
-    // Logout as guest
-    const guestLogoutButton = screen.getByRole("button", { name: /logout/i });
-    await fireEvent.click(guestLogoutButton);
-
+    // ===== Step 7: Log out as a guest =====
+    // Wait for the page to settle after booking confirmation
     await waitFor(
       () => {
         expect(
-          screen.getByRole("button", { name: /login/i })
+          screen.getByRole("button", { name: /logout/i })
         ).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
-    // ===== Step 7: Login back as host =====
     const logoutButton = screen.getByRole("button", { name: /logout/i });
     await fireEvent.click(logoutButton);
 
