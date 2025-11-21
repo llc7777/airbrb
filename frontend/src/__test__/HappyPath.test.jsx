@@ -167,5 +167,201 @@ describe("Happy Path - Admin User Flow", () => {
       },
       { timeout: 3000 }
     );
+
+    // ===== Step 4: Publish the listing successfully =====
+    const publishButton = screen.getByRole("button", { name: /publish/i });
+    await fireEvent.click(publishButton);
+
+    const startDateInputs = screen.getAllByLabelText(/start date/i);
+    const endDateInputs = screen.getAllByLabelText(/end date/i);
+
+    await fireEvent.change(startDateInputs[0], {
+      target: { value: "2024-06-01" },
+    });
+    await fireEvent.change(endDateInputs[0], {
+      target: { value: "2024-12-31" },
+    });
+
+    const confirmPublishButton = screen.getByRole("button", {
+      name: /publish listing/i,
+    });
+    await fireEvent.click(confirmPublishButton);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /unpublish/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    // ===== Step 5: Unpublish the listing successfully =====
+    const unpublishButton = screen.getByRole("button", { name: /unpublish/i });
+    await fireEvent.click(unpublishButton);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.queryByRole("button", { name: /unpublish/i })
+        ).not.toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    // ===== Step 6: Make a booking (republish first) =====
+    const republishButton = screen.getByRole("button", { name: /publish/i });
+    await fireEvent.click(republishButton);
+
+    const startDateInputs2 = screen.getAllByLabelText(/start date/i);
+    const endDateInputs2 = screen.getAllByLabelText(/end date/i);
+
+    await fireEvent.change(startDateInputs2[0], {
+      target: { value: "2024-06-01" },
+    });
+    await fireEvent.change(endDateInputs2[0], {
+      target: { value: "2024-12-31" },
+    });
+
+    const confirmPublishButton2 = screen.getByRole("button", {
+      name: /publish listing/i,
+    });
+    await fireEvent.click(confirmPublishButton2);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /unpublish/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    // Logout as host
+    const hostLogoutButton = screen.getByRole("button", { name: /logout/i });
+    await fireEvent.click(hostLogoutButton);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /login/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+
+    // Register as guest user
+    const guestRegisterButton = screen.getByRole("button", {
+      name: /register/i,
+    });
+    await fireEvent.click(guestRegisterButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: /register/i })
+      ).toBeInTheDocument();
+    });
+
+    const guestNameInput = screen.getByLabelText(/name/i);
+    const guestEmailInput = screen.getByLabelText(/email/i);
+    const guestPasswordInput = screen.getByLabelText(/^password$/i);
+    const guestConfirmPasswordInput =
+      screen.getByLabelText(/confirm password/i);
+
+    await fireEvent.change(guestNameInput, { target: { value: "Guest User" } });
+    await fireEvent.change(guestEmailInput, { target: { value: guestEmail } });
+    await fireEvent.change(guestPasswordInput, {
+      target: { value: guestPassword },
+    });
+    await fireEvent.change(guestConfirmPasswordInput, {
+      target: { value: guestPassword },
+    });
+
+    const submitGuestRegisterButton = screen.getByRole("button", {
+      name: /register/i,
+    });
+    await fireEvent.click(submitGuestRegisterButton);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /logout/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    // Find and click on the published listing
+    await waitFor(
+      () => {
+        expect(screen.getByText(updatedListingTitle)).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    const listingCard = screen.getByText(updatedListingTitle);
+    await fireEvent.click(listingCard);
+
+    // Make a booking
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /book now/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    const bookNowButton = screen.getByRole("button", { name: /book now/i });
+    await fireEvent.click(bookNowButton);
+
+    // Fill in booking dates
+    await waitFor(() => {
+      expect(screen.getByLabelText(/check-in date/i)).toBeInTheDocument();
+    });
+
+    const checkInInput = screen.getByLabelText(/check-in date/i);
+    const checkOutInput = screen.getByLabelText(/check-out date/i);
+
+    await fireEvent.change(checkInInput, { target: { value: "2024-07-01" } });
+    await fireEvent.change(checkOutInput, { target: { value: "2024-07-10" } });
+
+    const confirmBookingButton = screen.getByRole("button", {
+      name: /confirm booking/i,
+    });
+    await fireEvent.click(confirmBookingButton);
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/booking confirmed/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    // Logout as guest
+    const guestLogoutButton = screen.getByRole("button", { name: /logout/i });
+    await fireEvent.click(guestLogoutButton);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /login/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+
+    // ===== Step 7: Login back as host =====
+    const logoutButton = screen.getByRole("button", { name: /logout/i });
+    await fireEvent.click(logoutButton);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /login/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   }, 30000); // 30 second timeout for the entire happy path test
 });
