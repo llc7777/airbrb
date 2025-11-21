@@ -363,5 +363,35 @@ describe("Happy Path - Admin User Flow", () => {
       },
       { timeout: 3000 }
     );
+
+    // ===== Step 8: Verify host can login again =====
+    const loginButton = screen.getByRole("button", { name: /login/i });
+    await fireEvent.click(loginButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: /login/i })
+      ).toBeInTheDocument();
+    });
+
+    const loginEmailInput = screen.getByLabelText(/email/i);
+    const loginPasswordInput = screen.getByLabelText(/password/i);
+
+    await fireEvent.change(loginEmailInput, { target: { value: hostEmail } });
+    await fireEvent.change(loginPasswordInput, {
+      target: { value: hostPassword },
+    });
+
+    const submitLoginButton = screen.getByRole("button", { name: /login/i });
+    await fireEvent.click(submitLoginButton);
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: /logout/i })
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   }, 30000); // 30 second timeout for the entire happy path test
 });
